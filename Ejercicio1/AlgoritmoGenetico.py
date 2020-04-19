@@ -145,3 +145,5 @@ class AlgoritmoGenetico:
         print()
         print()
         print("******* El Ideal que sabemos: " + str(ideal) + " -- Objetivo: " + str(self.FuncionObjetivo(ideal)))
+        print("******* Maximo Calculado: ")
+        self.Poblaciones[len(self.Poblaciones) - 1].PrintMaximo(self.FuncionObjetivo, self.FuncionFitness)

@@ -7,10 +7,15 @@ class Program:
         pass
 
     def Run(self):
-        configuracion = self.IngresarConfiguracion()
-        algoritmo = AlgoritmoGenetico(configuracion)
-        algoritmo.Run()
-        algoritmo.Print()
+        exit = False
+        while exit == False:
+            configuracion = self.IngresarConfiguracion()
+            algoritmo = AlgoritmoGenetico(configuracion)
+            algoritmo.Run()
+            algoritmo.Print()
+            line = input("Correr Nuevamente? [Y,N]")
+            if (line.lower() == "n"):
+                exit = True
 
     def IngresarConfiguracion(self) -> Configuracion:
         porcentajeCrossOver = float(input("Porcentaje Crossover (float): "))
