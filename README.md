@@ -20,3 +20,5 @@ Teniendo en cuenta los siguientes datos:
 *Método de Mutación: invertida
 El programa debe mostrar, finalmente, el Cromosoma correspondiente al valor máximo obtenido
 y gráficas, usando EXCEL, de Máx, Mín y Promedio de la función objetivo por cada generación
+
+**_Correr archivo Init.py_**
