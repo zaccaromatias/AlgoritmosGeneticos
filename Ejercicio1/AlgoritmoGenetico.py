@@ -1,3 +1,4 @@
+import xlsxwriter, datetime
 from random import randint, uniform, random
 from Ejercicio1.Crossover import Crossover
 from Ejercicio1.Cromosoma import Cromosoma
@@ -147,3 +148,105 @@ class AlgoritmoGenetico:
         print("******* El Ideal que sabemos: " + str(ideal) + " -- Objetivo: " + str(self.FuncionObjetivo(ideal)))
         print("******* Maximo Calculado: ")
         self.Poblaciones[len(self.Poblaciones) - 1].PrintMaximo(self.FuncionObjetivo, self.FuncionFitness)
+
+    def ExportToExcel(self):
+        workbook = xlsxwriter.Workbook("Excels/" + str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")) + '.xlsx')
+        worksheetIteraciones = workbook.add_worksheet("Iteraciones")
+        worksheetPromedios = workbook.add_worksheet("Promedios")
+        worksheetMaximos = workbook.add_worksheet("Maximos")
+        worksheetMinimos = workbook.add_worksheet("Minimos")
+        worksheetConfiguracion = workbook.add_worksheet("Configuracion")
+        bold = workbook.add_format({'bold': 1})
+        worksheetIteraciones.write('A1', 'Iteracion', bold)
+        worksheetIteraciones.write('B1', 'Valor', bold)
+        worksheetIteraciones.write('C1', 'Objetivo', bold)
+        worksheetIteraciones.write('D1', 'Fitnes', bold)
+
+        worksheetPromedios.write('A1', 'Iteracion', bold)
+        worksheetPromedios.write('B1', 'Promedio', bold)
+
+        worksheetMaximos.write('A1', 'Iteracion', bold)
+        worksheetMaximos.write('B1', 'Valor', bold)
+        worksheetMaximos.write('C1', 'Objetivo', bold)
+        worksheetMaximos.write('D1', 'Fitnes', bold)
+
+        worksheetMinimos.write('A1', 'Iteracion', bold)
+        worksheetMinimos.write('B1', 'Valor', bold)
+        worksheetMinimos.write('C1', 'Objetivo', bold)
+        worksheetMinimos.write('D1', 'Fitnes', bold)
+
+        rowIteraciones = 1
+        iteracion = 1
+        dataPromedios = []
+        dataMaximos = []
+        dataMinimos = []
+        dataIteraciones = []
+        for poblacion in self.Poblaciones:
+            for cromosoma in poblacion.Cromosomas:
+                fila = [iteracion, cromosoma.Valor, self.FuncionObjetivo(cromosoma.Valor),
+                        self.FuncionFitness(poblacion, cromosoma)]
+                dataIteraciones.append(fila)
+            dataPromedios.append([iteracion, poblacion.Promedio(self.FuncionObjetivo)])
+            maximo = poblacion.Maximo()
+            minimo = poblacion.Minimo()
+            dataMaximos.append(
+                [iteracion, maximo.Valor, self.FuncionObjetivo(maximo.Valor), self.FuncionFitness(poblacion, maximo)])
+            dataMinimos.append(
+                [iteracion, minimo.Valor, self.FuncionObjetivo(minimo.Valor), self.FuncionFitness(poblacion, minimo)])
+
+            iteracion += 1
+        worksheetIteraciones.add_table(
+            'A1:D' + str(self.Configuracion.Iteraciones * self.Configuracion.CantidadPoblacionInicial + 1),
+            {'data': dataIteraciones,
+             'columns': [
+                 {'header': 'Iteracion'},
+                 {'header': 'Valor'},
+                 {'header': 'Objetivo'},
+                 {'header': 'Fitnes'}]})
+
+        worksheetPromedios.add_table('A1:B' + str(self.Configuracion.Iteraciones + 1), {'data': dataPromedios,
+                                                                                        'columns': [
+                                                                                            {'header': 'Iteracion'},
+                                                                                            {'header': 'Promedio'}]})
+        chartPromedio = workbook.add_chart({'type': 'line'})
+        chartPromedio.add_series(
+            {'values': '=Promedios!$B$2:$B$' + str(self.Configuracion.Iteraciones + 1), 'name': 'Promedios'})
+        chartPromedio.set_x_axis({'name': 'Iteraciones'})
+        chartPromedio.set_y_axis({'name': 'Promedio Objetivo'})
+        worksheetPromedios.insert_chart('C1', chartPromedio)
+
+        worksheetMaximos.add_table('A1:D' + str(self.Configuracion.Iteraciones + 1), {'data': dataMaximos,
+                                                                                      'columns': [
+                                                                                          {'header': 'Iteracion'},
+                                                                                          {'header': 'Valor'},
+                                                                                          {'header': 'Objetivo'},
+                                                                                          {'header': 'Fitnes'}]})
+
+        chartMaximo = workbook.add_chart({'type': 'line'})
+        chartMaximo.add_series(
+            {'values': '=Maximos!$C$2:$C$' + str(self.Configuracion.Iteraciones + 1), 'name': 'Maximos'})
+        chartMaximo.set_x_axis({'name': 'Iteraciones'})
+        chartMaximo.set_y_axis({'name': 'Objetivo'})
+        worksheetMaximos.insert_chart('E1', chartMaximo)
+        worksheetMinimos.add_table('A1:D' + str(self.Configuracion.Iteraciones + 1), {'data': dataMinimos,
+                                                                                      'columns': [
+                                                                                          {'header': 'Iteracion'},
+                                                                                          {'header': 'Valor'},
+                                                                                          {'header': 'Objetivo'},
+                                                                                          {'header': 'Fitnes'}]})
+        chartMinimo = workbook.add_chart({'type': 'line'})
+        chartMinimo.add_series(
+            {'values': '=Minimos!$C$2:$C$' + str(self.Configuracion.Iteraciones + 1), 'name': 'Minimos'})
+        chartMinimo.set_x_axis({'name': 'Iteraciones'})
+        chartMinimo.set_y_axis({'name': 'Objetivo'})
+        worksheetMinimos.insert_chart('E1', chartMinimo)
+
+        worksheetConfiguracion.write(0, 0, "Probabilidad Crossover:", bold)
+        worksheetConfiguracion.write_number(0, 1, self.Configuracion.ProbabilidadCrossover)
+        worksheetConfiguracion.write(1, 0, "Probabilidad Mutacion:", bold)
+        worksheetConfiguracion.write_number(1, 1, self.Configuracion.ProbabilidadMutacion)
+        worksheetConfiguracion.write(2, 0, "Cantidad Poblacion Inicial:", bold)
+        worksheetConfiguracion.write_number(2, 1, self.Configuracion.CantidadPoblacionInicial)
+        worksheetConfiguracion.write(3, 0, "Iteraciones:", bold)
+        worksheetConfiguracion.write_number(3, 1, self.Configuracion.Iteraciones)
+        workbook.close()

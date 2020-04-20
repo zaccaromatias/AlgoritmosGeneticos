@@ -13,6 +13,7 @@ class Program:
             algoritmo = AlgoritmoGenetico(configuracion)
             algoritmo.Run()
             algoritmo.Print()
+            algoritmo.ExportToExcel()
             line = input("Correr Nuevamente? [Y,N]")
             if (line.lower() == "n"):
                 exit = True
