@@ -1,4 +1,4 @@
-import xlsxwriter, datetime, subprocess, os
+import xlsxwriter, datetime, os
 from random import randint, uniform, random
 from Ejercicio1.Crossover import Crossover
 from Ejercicio1.Cromosoma import Cromosoma
@@ -27,11 +27,11 @@ class AlgoritmoGenetico:
             self.Poblaciones.append(nuevaPoblacion)
 
     def GetPoblacionInicial(self) -> Poblacion:
-        poblaicon = Poblacion()
+        poblacion = Poblacion()
         for i in range(self.Configuracion.CantidadPoblacionInicial):
             numeroRandom = randint(self.dominioInicial, self.dominioFinal)
-            poblaicon.Cromosomas.append(Cromosoma(numeroRandom))
-        return poblaicon
+            poblacion.Cromosomas.append(Cromosoma(numeroRandom))
+        return poblacion
 
     def Seleccionar(self, poblacionInicial: Poblacion) -> Poblacion:
         return self.AplicarSeleccionRuedadeRuleta(poblacionInicial)
