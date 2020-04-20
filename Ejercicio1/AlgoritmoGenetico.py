@@ -1,4 +1,4 @@
-import xlsxwriter, datetime
+import xlsxwriter, datetime, subprocess, os
 from random import randint, uniform, random
 from Ejercicio1.Crossover import Crossover
 from Ejercicio1.Cromosoma import Cromosoma
@@ -117,15 +117,15 @@ class AlgoritmoGenetico:
     def AplicarMutacion(self, poblacion: Poblacion, cromosoma: Cromosoma):
         mutacion = Mutacion(cromosoma.Clone())
         binario = list(format(cromosoma.Valor, "b"))
-        numero = randint(0, len(binario) - 1)
-        if binario[numero] == "0":
-            binario[numero] = "1"
+        numeroBit = randint(0, len(binario) - 1)
+        if binario[numeroBit] == "0":
+            binario[numeroBit] = "1"
         else:
-            binario[numero] = "0"
+            binario[numeroBit] = "0"
         nuevo = int("".join(binario), 2)
         cromosoma.Valor = nuevo
         mutacion.Mutante = cromosoma
-        mutacion.IndiceBitCambiado = numero
+        mutacion.IndiceBitCambiado = numeroBit
         poblacion.Mutaciones.append(mutacion)
 
     def FuncionFitness(self, poblacionInicial: Poblacion, cromosoma: Cromosoma):
@@ -150,11 +150,15 @@ class AlgoritmoGenetico:
         self.Poblaciones[len(self.Poblaciones) - 1].PrintMaximo(self.FuncionObjetivo, self.FuncionFitness)
 
     def ExportToExcel(self):
-        workbook = xlsxwriter.Workbook("Excels/" + str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")) + '.xlsx')
+        name = str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")) + '.xlsx'
+        path = "Excels/" + name
+        workbook = xlsxwriter.Workbook(path)
         worksheetIteraciones = workbook.add_worksheet("Iteraciones")
         worksheetPromedios = workbook.add_worksheet("Promedios")
         worksheetMaximos = workbook.add_worksheet("Maximos")
         worksheetMinimos = workbook.add_worksheet("Minimos")
+        worksheetCrossovers = workbook.add_worksheet("Crossovers")
+        worksheetMutaciones = workbook.add_worksheet("Mutaciones")
         worksheetConfiguracion = workbook.add_worksheet("Configuracion")
         bold = workbook.add_format({'bold': 1})
         worksheetIteraciones.write('A1', 'Iteracion', bold)
@@ -175,17 +179,46 @@ class AlgoritmoGenetico:
         worksheetMinimos.write('C1', 'Objetivo', bold)
         worksheetMinimos.write('D1', 'Fitnes', bold)
 
-        rowIteraciones = 1
+        worksheetCrossovers.write('A1', 'Iteracion', bold)
+        worksheetCrossovers.write('B1', 'Projenitor 1', bold)
+        worksheetCrossovers.write('C1', 'Binario 1', bold)
+        worksheetCrossovers.write('D1', 'Projenitor 2', bold)
+        worksheetCrossovers.write('E1', 'Binario 2', bold)
+        worksheetCrossovers.write('F1', 'Hijo 1', bold)
+        worksheetCrossovers.write('G1', 'Binario Hijo 1', bold)
+        worksheetCrossovers.write('H1', 'Hijo 2', bold)
+        worksheetCrossovers.write('I1', 'Binario Hijo 2', bold)
+        worksheetCrossovers.write('J1', 'Unidad Corte', bold)
+
+        worksheetMutaciones.write('A1', 'Iteracion', bold)
+        worksheetMutaciones.write('B1', 'Original', bold)
+        worksheetMutaciones.write('C1', 'Original Binario', bold)
+        worksheetMutaciones.write('D1', 'Mutante', bold)
+        worksheetMutaciones.write('E1', 'Mutante Binario', bold)
+        worksheetMutaciones.write('F1', 'Indice Cambiado', bold)
+
         iteracion = 1
         dataPromedios = []
         dataMaximos = []
         dataMinimos = []
         dataIteraciones = []
+        dataCrosovers = []
+        dataMutacion = []
         for poblacion in self.Poblaciones:
             for cromosoma in poblacion.Cromosomas:
                 fila = [iteracion, cromosoma.Valor, self.FuncionObjetivo(cromosoma.Valor),
                         self.FuncionFitness(poblacion, cromosoma)]
                 dataIteraciones.append(fila)
+            for crossover in poblacion.Crossovers:
+                dataCrosovers.append([iteracion, crossover.Projenitor1.Valor, format(crossover.Projenitor1.Valor, "b"),
+                                      crossover.Projenitor2.Valor, format(crossover.Projenitor2.Valor, "b"),
+                                      crossover.Hijo1.Valor, format(crossover.Hijo1.Valor, "b"),
+                                      crossover.Hijo2.Valor, format(crossover.Hijo2.Valor, "b"),
+                                      crossover.Unidades])
+            for mutacion in poblacion.Mutaciones:
+                dataMutacion.append(
+                    [iteracion, mutacion.Original.Valor, format(mutacion.Original.Valor, "b"),
+                     mutacion.Mutante.Valor, format(mutacion.Mutante.Valor, "b"), mutacion.IndiceBitCambiado])
             dataPromedios.append([iteracion, poblacion.Promedio(self.FuncionObjetivo)])
             maximo = poblacion.Maximo()
             minimo = poblacion.Minimo()
@@ -249,4 +282,38 @@ class AlgoritmoGenetico:
         worksheetConfiguracion.write_number(2, 1, self.Configuracion.CantidadPoblacionInicial)
         worksheetConfiguracion.write(3, 0, "Iteraciones:", bold)
         worksheetConfiguracion.write_number(3, 1, self.Configuracion.Iteraciones)
+
+        worksheetCrossovers.add_table(
+            'A1:J' + str(len(dataCrosovers) + 1),
+            {'data': dataCrosovers,
+             'columns': [
+                 {'header': 'Iteracion'},
+                 {'header': 'Projenitor'},
+                 {'header': 'Binario 1'},
+                 {'header': 'Projenitor 2'},
+                 {'header': 'Binario 2'},
+                 {'header': 'Hijo 1'},
+                 {'header': 'Binario Hijo 1'},
+                 {'header': 'Hijo 2'},
+                 {'header': 'Binario Hijo 2'},
+                 {'header': 'Unidad De Corte'}
+             ]})
+
+        worksheetMutaciones.add_table(
+            'A1:F' + str(len(dataMutacion) + 1),
+            {'data': dataMutacion,
+             'columns': [
+                 {'header': 'Iteracion'},
+                 {'header': 'Original'},
+                 {'header': 'Original Binario'},
+                 {'header': 'Mutante'},
+                 {'header': 'Mutante Binario'},
+                 {'header': 'Indice Cambiado'}
+             ]})
+
         workbook.close()
+
+        fullPath = "C:\\Users\\mzaccaro\PycharmProjects\\AlgoritmosGeneticos\\Ejercicio1\\Excels\\" + name
+        print(fullPath)
+        # subprocess.run(['open', fullPath], check=True)
+        os.startfile(fullPath, 'open')
