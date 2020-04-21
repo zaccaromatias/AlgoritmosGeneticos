@@ -21,4 +21,6 @@ Teniendo en cuenta los siguientes datos:
 El programa debe mostrar, finalmente, el Cromosoma correspondiente al valor máximo obtenido
 y gráficas, usando EXCEL, de Máx, Mín y Promedio de la función objetivo por cada generación
 
+Parte B: Aplicar metodo elite, los 2 primero pasan si o si, despues aplicar crossover hasat llenar la poblacion.
+
 **_Correr archivo Init.py_**
