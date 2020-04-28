@@ -30,7 +30,7 @@ class Poblacion:
         for mutacion in self.Mutaciones:
             mutacion.MyPrint()
 
-    def PrintCromosomoas(self, FuncionObjetivo, FuncionFitness):
+    def PrintCromosomas(self, FuncionObjetivo, FuncionFitness):
         for cromosoma in self.Cromosomas:
             print("Valor: " + str(cromosoma.Valor) + " -- Objetivo: " + str(FuncionObjetivo(
                 cromosoma.Valor)) + " -- Fitness: " + str(FuncionFitness(self, cromosoma)))
@@ -48,12 +48,10 @@ class Poblacion:
         print("----Minimo: " + str(minimo.Valor) + " -- Objetivo: " + str(FuncionObjetivo(
             minimo.Valor)) + " -- Fitness: " + str(FuncionFitness(self, minimo)))
 
-    def Print(self, FuncionObjetivo, FuncionFitness, printCrossovers: bool, printMutaciones: bool):
-        self.PrintCromosomoas(FuncionObjetivo, FuncionFitness)
-        if (printCrossovers == True):
-            self.PrintCrossovers()
-        if (printMutaciones == True):
-            self.PrintMutaciones()
+    def Print(self, FuncionObjetivo, FuncionFitness):
+        self.PrintCromosomas(FuncionObjetivo, FuncionFitness)
+        self.PrintCrossovers()
+        self.PrintMutaciones()
         self.PrintMaximo(FuncionObjetivo, FuncionFitness)
         self.PrintMinimo(FuncionObjetivo, FuncionFitness)
         self.PrintPromedio(FuncionObjetivo)
