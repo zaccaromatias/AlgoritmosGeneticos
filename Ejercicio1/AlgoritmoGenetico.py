@@ -47,7 +47,7 @@ def AplicarMutacion(poblacion: Poblacion, cromosoma: Cromosoma):
 
 
 def FuncionObjetivo(valor):
-    return pow(valor / pow(2, 30) - 1, 2)
+    return pow(valor / (pow(2, 30) - 1), 2)
 
 
 def FuncionFitness(poblacionInicial: Poblacion, cromosoma: Cromosoma):
