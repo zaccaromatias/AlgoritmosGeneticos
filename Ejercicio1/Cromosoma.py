@@ -12,12 +12,8 @@ class Cromosoma:
         print(self.Valor)
 
     def Reset(self):
-        self.YaSeleccionado = False
+        self.PorcionRuleta = PorcionRuleta()
         self.Elite = False
-
-    def Seleccionar(self):
-        self.YaSeleccionado = True
-        return self
 
     def Elite(self):
         self.Elite = True

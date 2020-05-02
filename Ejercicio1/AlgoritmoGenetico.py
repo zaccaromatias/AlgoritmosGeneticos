@@ -24,11 +24,8 @@ def AplicarCrosOverDeTipoUnPunto(cromosoma1: Cromosoma, cromosoma2: Cromosoma):
 
 
 def SeleccionarCromosomaAlAzar(cromosomas: []) -> Cromosoma:
-    posibles = list(filter(lambda c: c.YaSeleccionado == False, cromosomas))
-    if len(posibles) == 1:
-        return posibles[0].Seleccionar()
-    numero = randint(0, len(posibles) - 1)
-    return posibles[numero].Seleccionar()
+    numero = randint(0, len(cromosomas) - 1)
+    return cromosomas[numero]
 
 
 def AplicarMutacion(poblacion: Poblacion, cromosoma: Cromosoma):
@@ -70,9 +67,10 @@ class AlgoritmoGenetico:
             self.PoblacionActual = self.Poblaciones[len(self.Poblaciones) - 1]
             for cromosoma in self.PoblacionActual.Cromosomas:
                 cromosoma.Reset()
-            nuevaPoblacion = self.Seleccionar(self.PoblacionActual)
+            nuevaPoblacion: Poblacion = self.PoblacionActual
             if self.Configuracion.Elite:
                 nuevaPoblacion = self.Elite(nuevaPoblacion)
+            nuevaPoblacion = self.Seleccionar(nuevaPoblacion)
             nuevaPoblacion = self.EvaluarCrossover(nuevaPoblacion)
             self.EvaluarMutacion(nuevaPoblacion)
             self.Poblaciones.append(nuevaPoblacion)
@@ -104,7 +102,9 @@ class AlgoritmoGenetico:
             cromosoma.PorcionRuleta.ValorMaximo = valorMaximo
             porciones.append(cromosoma.PorcionRuleta)
 
-        for i in range(self.Configuracion.CantidadPoblacionInicial):
+        elite = list(filter(lambda c: c.Elite == True, poblacionInicial.Cromosomas))
+        nuevaPoblacion.Cromosomas.extend(elite)
+        for i in range(self.Configuracion.CantidadPoblacionInicial-len(elite)):
             numero = random()
             lista = list(filter(
                 lambda c: c.PorcionRuleta.ValorMinimo <= numero <= c.PorcionRuleta.ValorMaximo,
@@ -129,26 +129,20 @@ class AlgoritmoGenetico:
 
     def EvaluarCrossover(self, poblacionInicial: Poblacion) -> Poblacion:
         nuevaPoblacion = Poblacion()
-        noSeleccionados = list(filter(lambda c: c.YaSeleccionado == False and c.Elite == False,
-                                      poblacionInicial.Cromosomas))
-        while len(noSeleccionados) > 0:
-            cromosoma1: Cromosoma = SeleccionarCromosomaAlAzar(noSeleccionados)
-            noSeleccionados = list(filter(lambda c: c.YaSeleccionado == False,
-                                          noSeleccionados))
-            cromosoma2: Cromosoma = SeleccionarCromosomaAlAzar(noSeleccionados)
+        elite = list(filter(lambda c: c.Elite == True, poblacionInicial.Cromosomas))
+        for i in elite:
+            nuevaPoblacion.Cromosomas.append(i)
+        while len(nuevaPoblacion.Cromosomas) < self.Configuracion.CantidadPoblacionInicial:
+            cromosoma1: Cromosoma = SeleccionarCromosomaAlAzar(poblacionInicial.Cromosomas)
+            cromosoma2: Cromosoma = SeleccionarCromosomaAlAzar(poblacionInicial.Cromosomas)
             if self.AplicaCrossover():
                 hijos = AplicarCrosOverDeTipoUnPunto(cromosoma1, cromosoma2)
                 nuevaPoblacion.Cromosomas.append(hijos[0])
                 nuevaPoblacion.Cromosomas.append(hijos[1])
                 nuevaPoblacion.Crossovers.append(Crossover(cromosoma1, cromosoma2, hijos[0], hijos[1], hijos[2]))
             else:
-                nuevaPoblacion.Cromosomas.append(cromosoma1)
-                nuevaPoblacion.Cromosomas.append(cromosoma2)
-            noSeleccionados = list(filter(lambda c: c.YaSeleccionado == False,
-                                          noSeleccionados))
-        elite = list(filter(lambda c: c.Elite == True, poblacionInicial.Cromosomas))
-        for i in elite:
-            nuevaPoblacion.Cromosomas.append(i)
+                nuevaPoblacion.Cromosomas.append(cromosoma1.Clone())
+                nuevaPoblacion.Cromosomas.append(cromosoma2.Clone())
         return nuevaPoblacion
 
     def AplicaCrossover(self):
@@ -259,8 +253,8 @@ class AlgoritmoGenetico:
                     [iteracion, mutacion.Original.Valor, format(mutacion.Original.Valor, "b"),
                      mutacion.Mutante.Valor, format(mutacion.Mutante.Valor, "b"), mutacion.IndiceBitCambiado])
             dataPromedios.append([iteracion, poblacion.Promedio(FuncionObjetivo)])
-            maximo = poblacion.Maximo()
-            minimo = poblacion.Minimo()
+            maximo = poblacion.Maximo(FuncionObjetivo)
+            minimo = poblacion.Minimo(FuncionObjetivo)
             dataMaximos.append(
                 [iteracion, maximo.Valor, FuncionObjetivo(maximo.Valor), FuncionFitness(poblacion, maximo)])
             dataMinimos.append(
