@@ -1,4 +1,5 @@
 from random import randint, uniform, random
+from path import Path
 
 import datetime
 import os
@@ -104,7 +105,7 @@ class AlgoritmoGenetico:
 
         elite = list(filter(lambda c: c.Elite == True, poblacionInicial.Cromosomas))
         nuevaPoblacion.Cromosomas.extend(elite)
-        for i in range(self.Configuracion.CantidadPoblacionInicial-len(elite)):
+        for i in range(self.Configuracion.CantidadPoblacionInicial - len(elite)):
             numero = random()
             lista = list(filter(
                 lambda c: c.PorcionRuleta.ValorMinimo <= numero <= c.PorcionRuleta.ValorMaximo,
@@ -167,51 +168,81 @@ class AlgoritmoGenetico:
                 AplicarMutacion(poblacionInicial, cromosoma)
 
     def Print(self):
+        self.PrintIteraciones()
+        self.PrintMaximo()
+
+    def PrintMaximo(self):
+        print("******* Maximo Calculado: ")
+        maximo = self.GetMaximoTotal()
+        print("- Iteracion: " + str(maximo[0]) + "- Objetivo: " + str(
+            FuncionObjetivo(maximo[1].Valor)) + "- Cromosoma: " + str(format(maximo[1].Valor, "b")))
+
+    def GetMaximoTotal(self):
+        maximos = []
+        iteracion = 1
+        for poblacion in self.Poblaciones:
+            maximos.append([iteracion, poblacion.Maximo(FuncionObjetivo)])
+            iteracion += 1
+        valorMaximo = max(FuncionObjetivo(cromosoma[1].Valor) for cromosoma in maximos)
+        maximo = list(filter(lambda c: FuncionObjetivo(c[1].Valor) == valorMaximo, maximos))[0]
+        return maximo
+
+    def PrintIteraciones(self):
         iteracion = 1
         for poblacion in self.Poblaciones:
             print("*******Poblacion Numero: " + str(iteracion))
             poblacion.Print(FuncionObjetivo, FuncionFitness)
             iteracion = iteracion + 1
-        ideal = pow(2, 30) - 1
-        print()
-        print()
-        print("******* El Ideal que sabemos: " + str(ideal) + " -- Objetivo: " + str(FuncionObjetivo(ideal)))
-        print("******* Maximo Calculado: ")
-        self.Poblaciones[len(self.Poblaciones) - 1].PrintMaximo(FuncionObjetivo, FuncionFitness)
 
-# ----------------------------------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------------------------------
 
     def ExportToExcel(self):
+        iteracion = 1
+        dataResultados = []
+        dataIteraciones = []
+        dataCrosovers = []
+        dataMutacion = []
+        for poblacion in self.Poblaciones:
+            self.CargarDatosDeIteraciones(dataIteraciones, iteracion, poblacion)
+            self.CargarDatosCrossovers(dataCrosovers, iteracion, poblacion)
+            self.CargarDatosMutaciones(dataMutacion, iteracion, poblacion)
+            self.CargarDatosResultados(dataResultados, iteracion, poblacion)
+            iteracion += 1
         name = str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")) + '.xlsx'
-        # path = "" + name
-        fullPath = 'E:/Apuntes UTN/III/Algoritmos Genéticos/Excels/' + name
-        workbook = xlsxwriter.Workbook(fullPath)
-        worksheetIteraciones = workbook.add_worksheet("Iteraciones")
-        worksheetPromedios = workbook.add_worksheet("Promedios")
-        worksheetMaximos = workbook.add_worksheet("Maximos")
-        worksheetMinimos = workbook.add_worksheet("Minimos")
-        worksheetCrossovers = workbook.add_worksheet("Crossovers")
-        worksheetMutaciones = workbook.add_worksheet("Mutaciones")
-        worksheetConfiguracion = workbook.add_worksheet("Configuracion")
+        pathExcels = "Excels/" + name
+        workbook = xlsxwriter.Workbook(pathExcels)
         bold = workbook.add_format({'bold': 1})
-        worksheetIteraciones.write('A1', 'Iteracion', bold)
-        worksheetIteraciones.write('B1', 'Valor', bold)
-        worksheetIteraciones.write('C1', 'Objetivo', bold)
-        worksheetIteraciones.write('D1', 'Fitness', bold)
+        self.CargarSheetDeResultados(workbook, dataResultados, bold)
+        self.CargarSheetDeIteraciones(workbook, dataIteraciones, bold)
+        self.CargarSheetCrossovers(workbook, dataCrosovers, bold)
+        self.CargarSheetMutaciones(workbook, dataMutacion, bold)
+        self.CargarSheetConfiguracion(workbook, bold)
+        workbook.close()
+        fullPath = Path(pathExcels).abspath()
+        os.startfile(fullPath, 'open')
 
-        worksheetPromedios.write('A1', 'Iteracion', bold)
-        worksheetPromedios.write('B1', 'Promedio', bold)
+    def CargarSheetMutaciones(self, workbook, dataMutacion, bold):
+        worksheetMutaciones = workbook.add_worksheet("Mutaciones")
+        worksheetMutaciones.write('A1', 'Iteracion', bold)
+        worksheetMutaciones.write('B1', 'Original', bold)
+        worksheetMutaciones.write('C1', 'Original Binario', bold)
+        worksheetMutaciones.write('D1', 'Mutante', bold)
+        worksheetMutaciones.write('E1', 'Mutante Binario', bold)
+        worksheetMutaciones.write('F1', 'Indice Cambiado', bold)
+        worksheetMutaciones.add_table(
+            'A1:F' + str(len(dataMutacion) + 1),
+            {'data': dataMutacion,
+             'columns': [
+                 {'header': 'Iteracion'},
+                 {'header': 'Original'},
+                 {'header': 'Original Binario'},
+                 {'header': 'Mutante'},
+                 {'header': 'Mutante Binario'},
+                 {'header': 'Indice Cambiado'}
+             ]})
 
-        worksheetMaximos.write('A1', 'Iteracion', bold)
-        worksheetMaximos.write('B1', 'Valor', bold)
-        worksheetMaximos.write('C1', 'Objetivo', bold)
-        worksheetMaximos.write('D1', 'Fitness', bold)
-
-        worksheetMinimos.write('A1', 'Iteracion', bold)
-        worksheetMinimos.write('B1', 'Valor', bold)
-        worksheetMinimos.write('C1', 'Objetivo', bold)
-        worksheetMinimos.write('D1', 'Fitness', bold)
-
+    def CargarSheetCrossovers(self, workbook, dataCrosovers, bold):
+        worksheetCrossovers = workbook.add_worksheet("Crossovers")
         worksheetCrossovers.write('A1', 'Iteracion', bold)
         worksheetCrossovers.write('B1', 'Progenitor 1', bold)
         worksheetCrossovers.write('C1', 'Binario 1', bold)
@@ -222,100 +253,6 @@ class AlgoritmoGenetico:
         worksheetCrossovers.write('H1', 'Hijo 2', bold)
         worksheetCrossovers.write('I1', 'Binario Hijo 2', bold)
         worksheetCrossovers.write('J1', 'Unidad Corte', bold)
-
-        worksheetMutaciones.write('A1', 'Iteracion', bold)
-        worksheetMutaciones.write('B1', 'Original', bold)
-        worksheetMutaciones.write('C1', 'Original Binario', bold)
-        worksheetMutaciones.write('D1', 'Mutante', bold)
-        worksheetMutaciones.write('E1', 'Mutante Binario', bold)
-        worksheetMutaciones.write('F1', 'Indice Cambiado', bold)
-
-        iteracion = 1
-        dataPromedios = []
-        dataMaximos = []
-        dataMinimos = []
-        dataIteraciones = []
-        dataCrosovers = []
-        dataMutacion = []
-        for poblacion in self.Poblaciones:
-            for cromosoma in poblacion.Cromosomas:
-                fila = [iteracion, cromosoma.Valor, FuncionObjetivo(cromosoma.Valor),
-                        FuncionFitness(poblacion, cromosoma)]
-                dataIteraciones.append(fila)
-            for crossover in poblacion.Crossovers:
-                dataCrosovers.append([iteracion, crossover.Projenitor1.Valor, format(crossover.Projenitor1.Valor, "b"),
-                                      crossover.Projenitor2.Valor, format(crossover.Projenitor2.Valor, "b"),
-                                      crossover.Hijo1.Valor, format(crossover.Hijo1.Valor, "b"),
-                                      crossover.Hijo2.Valor, format(crossover.Hijo2.Valor, "b"),
-                                      crossover.Unidades])
-            for mutacion in poblacion.Mutaciones:
-                dataMutacion.append(
-                    [iteracion, mutacion.Original.Valor, format(mutacion.Original.Valor, "b"),
-                     mutacion.Mutante.Valor, format(mutacion.Mutante.Valor, "b"), mutacion.IndiceBitCambiado])
-            dataPromedios.append([iteracion, poblacion.Promedio(FuncionObjetivo)])
-            maximo = poblacion.Maximo(FuncionObjetivo)
-            minimo = poblacion.Minimo(FuncionObjetivo)
-            dataMaximos.append(
-                [iteracion, maximo.Valor, FuncionObjetivo(maximo.Valor), FuncionFitness(poblacion, maximo)])
-            dataMinimos.append(
-                [iteracion, minimo.Valor, FuncionObjetivo(minimo.Valor), FuncionFitness(poblacion, minimo)])
-
-            iteracion += 1
-        worksheetIteraciones.add_table(
-            'A1:D' + str(self.Configuracion.Iteraciones * self.Configuracion.CantidadPoblacionInicial + 1),
-            {'data': dataIteraciones,
-             'columns': [
-                 {'header': 'Iteracion'},
-                 {'header': 'Valor'},
-                 {'header': 'Objetivo'},
-                 {'header': 'Fitness'}]})
-
-        worksheetPromedios.add_table('A1:B' + str(self.Configuracion.Iteraciones + 1), {'data': dataPromedios,
-                                                                                        'columns': [
-                                                                                            {'header': 'Iteracion'},
-                                                                                            {'header': 'Promedio'}]})
-        chartPromedio = workbook.add_chart({'type': 'line'})
-        chartPromedio.add_series(
-            {'values': '=Promedios!$B$2:$B$' + str(self.Configuracion.Iteraciones + 1), 'name': 'Promedios'})
-        chartPromedio.set_x_axis({'name': 'Iteraciones'})
-        chartPromedio.set_y_axis({'name': 'Promedio Objetivo'})
-        worksheetPromedios.insert_chart('C1', chartPromedio)
-
-        worksheetMaximos.add_table('A1:D' + str(self.Configuracion.Iteraciones + 1), {'data': dataMaximos,
-                                                                                      'columns': [
-                                                                                          {'header': 'Iteracion'},
-                                                                                          {'header': 'Valor'},
-                                                                                          {'header': 'Objetivo'},
-                                                                                          {'header': 'Fitness'}]})
-
-        chartMaximo = workbook.add_chart({'type': 'line'})
-        chartMaximo.add_series(
-            {'values': '=Maximos!$C$2:$C$' + str(self.Configuracion.Iteraciones + 1), 'name': 'Maximos'})
-        chartMaximo.set_x_axis({'name': 'Iteraciones'})
-        chartMaximo.set_y_axis({'name': 'Objetivo'})
-        worksheetMaximos.insert_chart('E1', chartMaximo)
-        worksheetMinimos.add_table('A1:D' + str(self.Configuracion.Iteraciones + 1), {'data': dataMinimos,
-                                                                                      'columns': [
-                                                                                          {'header': 'Iteracion'},
-                                                                                          {'header': 'Valor'},
-                                                                                          {'header': 'Objetivo'},
-                                                                                          {'header': 'Fitness'}]})
-        chartMinimo = workbook.add_chart({'type': 'line'})
-        chartMinimo.add_series(
-            {'values': '=Minimos!$C$2:$C$' + str(self.Configuracion.Iteraciones + 1), 'name': 'Minimos'})
-        chartMinimo.set_x_axis({'name': 'Iteraciones'})
-        chartMinimo.set_y_axis({'name': 'Objetivo'})
-        worksheetMinimos.insert_chart('E1', chartMinimo)
-
-        worksheetConfiguracion.write(0, 0, "Probabilidad Crossover:", bold)
-        worksheetConfiguracion.write_number(0, 1, self.Configuracion.ProbabilidadCrossover)
-        worksheetConfiguracion.write(1, 0, "Probabilidad Mutacion:", bold)
-        worksheetConfiguracion.write_number(1, 1, self.Configuracion.ProbabilidadMutacion)
-        worksheetConfiguracion.write(2, 0, "Cantidad Poblacion Inicial:", bold)
-        worksheetConfiguracion.write_number(2, 1, self.Configuracion.CantidadPoblacionInicial)
-        worksheetConfiguracion.write(3, 0, "Iteraciones:", bold)
-        worksheetConfiguracion.write_number(3, 1, self.Configuracion.Iteraciones)
-
         worksheetCrossovers.add_table(
             'A1:J' + str(len(dataCrosovers) + 1),
             {'data': dataCrosovers,
@@ -332,19 +269,89 @@ class AlgoritmoGenetico:
                  {'header': 'Unidad De Corte'}
              ]})
 
-        worksheetMutaciones.add_table(
-            'A1:F' + str(len(dataMutacion) + 1),
-            {'data': dataMutacion,
+    def CargarSheetConfiguracion(self, workbook, bold):
+        worksheetConfiguracion = workbook.add_worksheet("Configuracion")
+        worksheetConfiguracion.write(0, 0, "Probabilidad Crossover:", bold)
+        worksheetConfiguracion.write_number(0, 1, self.Configuracion.ProbabilidadCrossover)
+        worksheetConfiguracion.write(1, 0, "Probabilidad Mutacion:", bold)
+        worksheetConfiguracion.write_number(1, 1, self.Configuracion.ProbabilidadMutacion)
+        worksheetConfiguracion.write(2, 0, "Cantidad Poblacion Inicial:", bold)
+        worksheetConfiguracion.write_number(2, 1, self.Configuracion.CantidadPoblacionInicial)
+        worksheetConfiguracion.write(3, 0, "Iteraciones:", bold)
+        worksheetConfiguracion.write_number(3, 1, self.Configuracion.Iteraciones)
+
+    def CargarSheetDeResultados(self, workbook, dataResultados, bold):
+        worksheetResultados = workbook.add_worksheet("Resultados")
+        worksheetResultados.write('A1', 'Nro Ciclo.', bold)
+        worksheetResultados.write('B1', 'Minimo', bold)
+        worksheetResultados.write('C1', 'Maximo', bold)
+        worksheetResultados.write('D1', 'Valor Cromosoma(Maximo)', bold)
+        worksheetResultados.write('E1', 'Promedio', bold)
+        worksheetResultados.add_table('A1:E' + str(self.Configuracion.Iteraciones + 1), {'data': dataResultados,
+                                                                                         'columns': [
+                                                                                             {
+                                                                                                 'header': 'Nro De Ciclo.'},
+                                                                                             {'header': 'Minimo'},
+                                                                                             {'header': 'Maximo'},
+                                                                                             {
+                                                                                                 'header': 'Crmosoma(Maximo)'},
+                                                                                             {'header': 'Promedio'}
+                                                                                         ]})
+        maximo = self.GetMaximoTotal()
+        textoMaximo = "- Iteracion: " + str(maximo[0]) + "- Objetivo: " + str(
+            FuncionObjetivo(maximo[1].Valor)) + "- Cromosoma: " + str(format(maximo[1].Valor, "b"))
+        worksheetResultados.write('F1', 'MAXIMO:', bold)
+        worksheetResultados.write('F2', textoMaximo, bold)
+        chartResultados = workbook.add_chart({'type': 'line'})
+        chartResultados.add_series(
+            {'values': '=Resultados!$B$2:$B$' + str(self.Configuracion.Iteraciones + 1), 'name': 'Minimo'})
+        chartResultados.add_series(
+            {'values': '=Resultados!$C$2:$C$' + str(self.Configuracion.Iteraciones + 1), 'name': 'Maximo'})
+        chartResultados.add_series(
+            {'values': '=Resultados!$E$2:$E$' + str(self.Configuracion.Iteraciones + 1), 'name': 'Promedio'})
+
+        chartResultados.set_x_axis({'name': 'Iteraciones'})
+        chartResultados.set_y_axis({'name': 'Valor'})
+        worksheetResultados.insert_chart('F3', chartResultados)
+
+    def CargarSheetDeIteraciones(self, workbook, dataIteraciones, bold):
+        worksheetIteraciones = workbook.add_worksheet("Iteraciones")
+        worksheetIteraciones.write('A1', 'Iteracion', bold)
+        worksheetIteraciones.write('B1', 'Valor', bold)
+        worksheetIteraciones.write('C1', 'Objetivo', bold)
+        worksheetIteraciones.write('D1', 'Fitness', bold)
+        worksheetIteraciones.add_table(
+            'A1:D' + str(self.Configuracion.Iteraciones * self.Configuracion.CantidadPoblacionInicial + 1),
+            {'data': dataIteraciones,
              'columns': [
                  {'header': 'Iteracion'},
-                 {'header': 'Original'},
-                 {'header': 'Original Binario'},
-                 {'header': 'Mutante'},
-                 {'header': 'Mutante Binario'},
-                 {'header': 'Indice Cambiado'}
-             ]})
+                 {'header': 'Valor'},
+                 {'header': 'Objetivo'},
+                 {'header': 'Fitness'}]})
 
-        workbook.close()
+    def CargarDatosResultados(self, dataResultados, iteracion, poblacion):
+        maximo = poblacion.Maximo(FuncionObjetivo)
+        minimo = poblacion.Minimo(FuncionObjetivo)
+        dataResultados.append(
+            [iteracion, FuncionObjetivo(minimo.Valor), FuncionObjetivo(maximo.Valor), format(maximo.Valor, "b"),
+             poblacion.Promedio(FuncionObjetivo)])
 
-        print(fullPath)
-        os.startfile(fullPath, 'open')
+    def CargarDatosMutaciones(self, dataMutacion, iteracion, poblacion):
+        for mutacion in poblacion.Mutaciones:
+            dataMutacion.append(
+                [iteracion, mutacion.Original.Valor, format(mutacion.Original.Valor, "b"),
+                 mutacion.Mutante.Valor, format(mutacion.Mutante.Valor, "b"), mutacion.IndiceBitCambiado])
+
+    def CargarDatosCrossovers(self, dataCrosovers, iteracion, poblacion):
+        for crossover in poblacion.Crossovers:
+            dataCrosovers.append([iteracion, crossover.Projenitor1.Valor, format(crossover.Projenitor1.Valor, "b"),
+                                  crossover.Projenitor2.Valor, format(crossover.Projenitor2.Valor, "b"),
+                                  crossover.Hijo1.Valor, format(crossover.Hijo1.Valor, "b"),
+                                  crossover.Hijo2.Valor, format(crossover.Hijo2.Valor, "b"),
+                                  crossover.Unidades])
+
+    def CargarDatosDeIteraciones(self, dataIteraciones, iteracion, poblacion):
+        for cromosoma in poblacion.Cromosomas:
+            fila = [iteracion, cromosoma.Valor, FuncionObjetivo(cromosoma.Valor),
+                    FuncionFitness(poblacion, cromosoma)]
+            dataIteraciones.append(fila)

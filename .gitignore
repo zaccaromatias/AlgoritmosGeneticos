@@ -126,4 +126,4 @@ dmypy.json
 
 # PyCharm
 .idea/
-Ejercicio1/Excels/
+Ejercicio1/Excels/*.xlsx
