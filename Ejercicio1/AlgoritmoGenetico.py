@@ -28,15 +28,16 @@ def SeleccionarCromosomaAlAzar(cromosomas: []) -> Cromosoma:
 
 
 def AplicarMutacion(poblacion: Poblacion, cromosoma: Cromosoma):
-    mutacion = Mutacion(cromosoma.Clone())
-    numeroBit = randint(0, len(mutacion.Original.Valor) - 1)
-    list1 = list(mutacion.Mutante.Valor)
-    if mutacion.Mutante.Valor[numeroBit] == '0':
+    mutacion = Mutacion(cromosoma)
+    numeroBit = randint(0, len(cromosoma.Valor) - 1)
+    list1 = list(cromosoma.Valor)
+    if list1[numeroBit] == '0':
         list1[numeroBit] = '1'
     else:
         list1[numeroBit] = '0'
     mutacion.Mutante.Valor = ''.join(list1)
     mutacion.IndiceBitCambiado = numeroBit
+    cromosoma.Valor = ''.join(list1)
     poblacion.Mutaciones.append(mutacion)
 
 
@@ -99,22 +100,23 @@ class AlgoritmoGenetico:
             cromosoma.PorcionRuleta.ValorMaximo = valorMaximo
             porciones.append(cromosoma.PorcionRuleta)
 
-        elite = list(filter(lambda c: c.Elite == True, poblacionInicial.Cromosomas))
-        nuevaPoblacion.Cromosomas.extend(elite)
+        elite = list(filter(lambda c: c.EsElite == True, poblacionInicial.Cromosomas))
+        for cromosomaElite in elite:
+            nuevaPoblacion.Cromosomas.append(cromosomaElite.Clone())
         for i in range(self.Configuracion.CantidadPoblacionInicial - len(elite)):
-            numero = random()
+            numero = uniform(0, 1)
             lista = list(filter(
                 lambda c: c.PorcionRuleta.ValorMinimo <= numero <= c.PorcionRuleta.ValorMaximo,
                 poblacionInicial.Cromosomas))
-            cromosomaSeleccionado = Cromosoma.Clone(lista[0])
-            nuevaPoblacion.Cromosomas.append(Cromosoma(cromosomaSeleccionado.Valor))
+            cromosomaSeleccionado = lista[0].Clone()
+            nuevaPoblacion.Cromosomas.append(cromosomaSeleccionado)
         return nuevaPoblacion
 
     def Elite(self, poblacionInicial: Poblacion) -> Poblacion:
         countTrue = 0
         while countTrue < 2:
             elite = 0
-            noElite = list(filter(lambda cd: cd.Elite == False, poblacionInicial.Cromosomas))
+            noElite = list(filter(lambda cd: cd.EsElite == False, poblacionInicial.Cromosomas))
             for cromosoma in noElite:
                 if FuncionFitness(poblacionInicial, cromosoma) > elite:
                     elite = FuncionFitness(poblacionInicial, cromosoma)
@@ -126,12 +128,12 @@ class AlgoritmoGenetico:
 
     def EvaluarCrossover(self, poblacionInicial: Poblacion) -> Poblacion:
         nuevaPoblacion = Poblacion()
-        elite = list(filter(lambda c: c.Elite == True, poblacionInicial.Cromosomas))
+        elite = list(filter(lambda c: c.EsElite == True, poblacionInicial.Cromosomas))
         for i in elite:
-            nuevaPoblacion.Cromosomas.append(i)
+            nuevaPoblacion.Cromosomas.append(i.Clone())
         while len(nuevaPoblacion.Cromosomas) < self.Configuracion.CantidadPoblacionInicial:
-            cromosoma1: Cromosoma = Cromosoma.Clone(SeleccionarCromosomaAlAzar(poblacionInicial.Cromosomas))
-            cromosoma2: Cromosoma = Cromosoma.Clone(SeleccionarCromosomaAlAzar(poblacionInicial.Cromosomas))
+            cromosoma1: Cromosoma = SeleccionarCromosomaAlAzar(poblacionInicial.Cromosomas).Clone()
+            cromosoma2: Cromosoma = SeleccionarCromosomaAlAzar(poblacionInicial.Cromosomas).Clone()
             if self.AplicaCrossover():
                 hijos = AplicarCrosOverDeTipoUnPunto(cromosoma1, cromosoma2)
                 nuevaPoblacion.Cromosomas.append(hijos[0])
@@ -158,7 +160,7 @@ class AlgoritmoGenetico:
             return False
 
     def EvaluarMutacion(self, poblacionInicial: Poblacion):
-        poblacion = list(filter(lambda c: c.Elite == False, poblacionInicial.Cromosomas))
+        poblacion = list(filter(lambda c: c.EsElite == False, poblacionInicial.Cromosomas))
         for cromosoma in poblacion:
             if self.AplicaMutacion():
                 AplicarMutacion(poblacionInicial, cromosoma)
@@ -221,19 +223,15 @@ class AlgoritmoGenetico:
         worksheetMutaciones = workbook.add_worksheet("Mutaciones")
         worksheetMutaciones.write('A1', 'Iteracion', bold)
         worksheetMutaciones.write('B1', 'Original', bold)
-        worksheetMutaciones.write('C1', 'Original Binario', bold)
-        worksheetMutaciones.write('D1', 'Mutante', bold)
-        worksheetMutaciones.write('E1', 'Mutante Binario', bold)
-        worksheetMutaciones.write('F1', 'Indice Cambiado', bold)
+        worksheetMutaciones.write('C1', 'Mutante', bold)
+        worksheetMutaciones.write('D1', 'Indice Cambiado', bold)
         worksheetMutaciones.add_table(
-            'A1:F' + str(len(dataMutacion) + 1),
+            'A1:D' + str(len(dataMutacion) + 1),
             {'data': dataMutacion,
              'columns': [
                  {'header': 'Iteracion'},
                  {'header': 'Original'},
-                 {'header': 'Original Binario'},
                  {'header': 'Mutante'},
-                 {'header': 'Mutante Binario'},
                  {'header': 'Indice Cambiado'}
              ]})
 
@@ -241,27 +239,19 @@ class AlgoritmoGenetico:
         worksheetCrossovers = workbook.add_worksheet("Crossovers")
         worksheetCrossovers.write('A1', 'Iteracion', bold)
         worksheetCrossovers.write('B1', 'Progenitor 1', bold)
-        worksheetCrossovers.write('C1', 'Binario 1', bold)
-        worksheetCrossovers.write('D1', 'Progenitor 2', bold)
-        worksheetCrossovers.write('E1', 'Binario 2', bold)
-        worksheetCrossovers.write('F1', 'Hijo 1', bold)
-        worksheetCrossovers.write('G1', 'Binario Hijo 1', bold)
-        worksheetCrossovers.write('H1', 'Hijo 2', bold)
-        worksheetCrossovers.write('I1', 'Binario Hijo 2', bold)
-        worksheetCrossovers.write('J1', 'Unidad Corte', bold)
+        worksheetCrossovers.write('C1', 'Progenitor 2', bold)
+        worksheetCrossovers.write('D1', 'Hijo 1', bold)
+        worksheetCrossovers.write('E1', 'Hijo 2', bold)
+        worksheetCrossovers.write('F1', 'Unidad Corte', bold)
         worksheetCrossovers.add_table(
-            'A1:J' + str(len(dataCrosovers) + 1),
+            'A1:F' + str(len(dataCrosovers) + 1),
             {'data': dataCrosovers,
              'columns': [
                  {'header': 'Iteracion'},
                  {'header': 'Progenitor 1'},
-                 {'header': 'Binario 1'},
                  {'header': 'Progenitor 2'},
-                 {'header': 'Binario 2'},
                  {'header': 'Hijo 1'},
-                 {'header': 'Binario Hijo 1'},
                  {'header': 'Hijo 2'},
-                 {'header': 'Binario Hijo 2'},
                  {'header': 'Unidad De Corte'}
              ]})
 
@@ -275,6 +265,8 @@ class AlgoritmoGenetico:
         worksheetConfiguracion.write_number(2, 1, self.Configuracion.CantidadPoblacionInicial)
         worksheetConfiguracion.write(3, 0, "Iteraciones:", bold)
         worksheetConfiguracion.write_number(3, 1, self.Configuracion.Iteraciones)
+        worksheetConfiguracion.write(4, 0, "Elitismo:", bold)
+        worksheetConfiguracion.write(4, 1, str(self.Configuracion.Elite))
 
     def CargarSheetDeResultados(self, workbook, dataResultados, bold):
         worksheetResultados = workbook.add_worksheet("Resultados")
@@ -335,15 +327,15 @@ class AlgoritmoGenetico:
     def CargarDatosMutaciones(self, dataMutacion, iteracion, poblacion):
         for mutacion in poblacion.Mutaciones:
             dataMutacion.append(
-                [iteracion, int(mutacion.Original.Valor), mutacion.Original.Valor,
-                 int(mutacion.Mutante.Valor), mutacion.Mutante.Valor, mutacion.IndiceBitCambiado])
+                [iteracion, mutacion.Original.Valor,
+                 mutacion.Mutante.Valor, mutacion.IndiceBitCambiado])
 
     def CargarDatosCrossovers(self, dataCrosovers, iteracion, poblacion):
         for crossover in poblacion.Crossovers:
-            dataCrosovers.append([iteracion, int(crossover.Projenitor1.Valor, 2), crossover.Projenitor1.Valor,
-                                  int(crossover.Projenitor2.Valor), crossover.Projenitor2.Valor,
-                                  int(crossover.Hijo1.Valor), crossover.Hijo1.Valor,
-                                  int(crossover.Hijo2.Valor), crossover.Hijo2.Valor,
+            dataCrosovers.append([iteracion, crossover.Projenitor1.Valor,
+                                  crossover.Projenitor2.Valor,
+                                  crossover.Hijo1.Valor,
+                                  crossover.Hijo2.Valor,
                                   crossover.Unidades])
 
     def CargarDatosDeIteraciones(self, dataIteraciones, iteracion, poblacion):

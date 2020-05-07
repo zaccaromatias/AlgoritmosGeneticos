@@ -4,10 +4,10 @@ from Ejercicio1.Cromosoma import Cromosoma
 class Crossover:
     def __init__(self, projenitor1: Cromosoma, projenitor2: Cromosoma, hijo1: Cromosoma,
                  hijo2: Cromosoma, unidades: int):
-        self.Projenitor1 = projenitor1
-        self.Projenitor2 = projenitor2
-        self.Hijo1 = hijo1
-        self.Hijo2 = hijo2
+        self.Projenitor1 = projenitor1.Clone()
+        self.Projenitor2 = projenitor2.Clone()
+        self.Hijo1 = hijo1.Clone()
+        self.Hijo2 = hijo2.Clone()
         self.Unidades = unidades
 
     def MyPrint(self):
