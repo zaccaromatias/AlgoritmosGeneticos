@@ -3,9 +3,9 @@ from Ejercicio1.Configuracion import Configuracion
 
 
 def IngresarConfiguracion() -> Configuracion:
-    porcentajeCrossOver = float(input("Porcentaje Crossover (float): "))
-    porcentajeMutacion = float(input("Porcentaje Mutacion (float): "))
-    cantidadInicialPoblacion = int(input("Cantidad Inicial Poblacion (int): "))
+    porcentajeCrossOver = 0.75  # float(input("Porcentaje Crossover (float): "))
+    porcentajeMutacion = 0.05  # float(input("Porcentaje Mutacion (float): "))
+    cantidadInicialPoblacion = 10  # int(input("Cantidad Inicial Poblacion (int): "))
     iteraciones = int(input("Cantidad Iteraciones (int): "))
     eliteBool = input("Elitismo (1-Sí/otro-No): ")
     if eliteBool == "1":

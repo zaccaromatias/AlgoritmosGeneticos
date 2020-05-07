@@ -3,13 +3,13 @@ from Ejercicio1.Cromosoma import Cromosoma
 
 class Mutacion:
     def __init__(self, original: Cromosoma):
-        self.Original = original
-        self.Mutante = None
+        self.Original = Cromosoma.Clone(original)
+        self.Mutante = Cromosoma.Clone(original)
         self.IndiceBitCambiado = None
 
     def MyPrint(self):
         print(
-            "//Original: " + str(self.Original.Valor) + " --Binario : " + str(format(self.Original.Valor, "b")))
+            "//Original: " + str(int(self.Original.Valor)) + " --Binario : " + self.Original.Valor)
         print(
-            "//Mutante: " + str(self.Mutante.Valor) + " --Binario : " + str(format(self.Mutante.Valor, "b")))
+            "//Mutante: " + str(int(self.Mutante.Valor)) + " --Binario : " + self.Mutante.Valor)
         print("//Indice Cambiado: " + str(self.IndiceBitCambiado))
