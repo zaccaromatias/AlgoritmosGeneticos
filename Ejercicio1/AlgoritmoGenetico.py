@@ -68,6 +68,8 @@ class AlgoritmoGenetico:
             nuevaPoblacion: Poblacion = self.PoblacionActual
             if self.Configuracion.Elite:
                 nuevaPoblacion = self.Elite(nuevaPoblacion)
+            if self.Configuracion.DiversidadGenetica:
+                self.DiversidadGenetica(nuevaPoblacion)
             nuevaPoblacion = self.Seleccionar(nuevaPoblacion)
             nuevaPoblacion = self.EvaluarCrossover(nuevaPoblacion)
             self.EvaluarMutacion(nuevaPoblacion)
@@ -82,34 +84,47 @@ class AlgoritmoGenetico:
             poblacion.Cromosomas.append(Cromosoma(numeroRandom))
         return poblacion
 
+    def DiversidadGenetica(self, poblacionInicial: Poblacion):
+        similares = list(filter(lambda c: 0.105 >= FuncionFitness(poblacionInicial, c) > 0.09,
+                                poblacionInicial.Cromosomas))
+        if len(similares) >= 6:
+            for cr in similares:
+                if random() < 0.4 and not cr.EsElite:
+                    numeroBit = randint(0, len(cr.Valor) - 1)
+                    list1 = list(cr.Valor)
+                    if list1[numeroBit] == '0':
+                        list1[numeroBit] = '1'
+                    else:
+                        list1[numeroBit] = '0'
+                    cr.Valor = ''.join(list1)
+
     def Seleccionar(self, poblacionInicial: Poblacion) -> Poblacion:
         return self.AplicarSeleccionRuedadeRuleta(poblacionInicial)
 
     def AplicarSeleccionRuedadeRuleta(self, poblacionInicial: Poblacion) -> Poblacion:
         porciones = []
         nuevaPoblacion = Poblacion()
+
+        elite = list(filter(lambda c: c.EsElite == True, poblacionInicial.Cromosomas))
+        for cromosomaElite in elite:
+            nuevaPoblacion.Cromosomas.append(cromosomaElite.Clone())
+
         for cromosoma in poblacionInicial.Cromosomas:
             if len(porciones) == 0:
                 valorMinimo = 0
             else:
                 valorMinimo = porciones[len(porciones) - 1].ValorMaximo
             valorMaximo = valorMinimo + FuncionFitness(poblacionInicial, cromosoma)
-            if len(porciones) == self.Configuracion.CantidadPoblacionInicial - 1:
-                valorMaximo = 1
             cromosoma.PorcionRuleta.ValorMinimo = valorMinimo
             cromosoma.PorcionRuleta.ValorMaximo = valorMaximo
             porciones.append(cromosoma.PorcionRuleta)
 
-        elite = list(filter(lambda c: c.EsElite == True, poblacionInicial.Cromosomas))
-        for cromosomaElite in elite:
-            nuevaPoblacion.Cromosomas.append(cromosomaElite.Clone())
         for i in range(self.Configuracion.CantidadPoblacionInicial - len(elite)):
-            numero = uniform(0, 1)
+            numero = uniform(0, porciones[len(porciones)-1].ValorMaximo)
             lista = list(filter(
-                lambda c: c.PorcionRuleta.ValorMinimo <= numero <= c.PorcionRuleta.ValorMaximo,
+                lambda c: c.PorcionRuleta.ValorMinimo <= numero < c.PorcionRuleta.ValorMaximo,
                 poblacionInicial.Cromosomas))
-            cromosomaSeleccionado = lista[0].Clone()
-            nuevaPoblacion.Cromosomas.append(cromosomaSeleccionado)
+            nuevaPoblacion.Cromosomas.append(lista[0].Clone())
         return nuevaPoblacion
 
     def Elite(self, poblacionInicial: Poblacion) -> Poblacion:
@@ -145,14 +160,14 @@ class AlgoritmoGenetico:
         return nuevaPoblacion
 
     def AplicaCrossover(self):
-        numero = uniform(0, 1)
+        numero = random()
         if 0 <= numero <= self.Configuracion.ProbabilidadCrossover:
             return True
         else:
             return False
 
     def AplicaMutacion(self):
-        numero = uniform(0, 1)
+        numero = random()
         if 0 <= numero <= self.Configuracion.ProbabilidadMutacion:
             print("MUTACIÓN")
             return True
@@ -282,7 +297,7 @@ class AlgoritmoGenetico:
                                                                                              {'header': 'Minimo'},
                                                                                              {'header': 'Maximo'},
                                                                                              {
-                                                                                                 'header': 'Crmosoma(Maximo)'},
+                                                                                                 'header': 'Cromosoma(Maximo)'},
                                                                                              {'header': 'Promedio'}
                                                                                          ]})
         maximo = self.GetMaximoTotal()
@@ -308,14 +323,16 @@ class AlgoritmoGenetico:
         worksheetIteraciones.write('B1', 'Valor', bold)
         worksheetIteraciones.write('C1', 'Objetivo', bold)
         worksheetIteraciones.write('D1', 'Fitness', bold)
+        worksheetIteraciones.write('E1', 'Elite', bold)
         worksheetIteraciones.add_table(
-            'A1:D' + str(self.Configuracion.Iteraciones * self.Configuracion.CantidadPoblacionInicial + 1),
+            'A1:E' + str(self.Configuracion.Iteraciones * self.Configuracion.CantidadPoblacionInicial + 1),
             {'data': dataIteraciones,
              'columns': [
                  {'header': 'Iteracion'},
                  {'header': 'Valor'},
                  {'header': 'Objetivo'},
-                 {'header': 'Fitness'}]})
+                 {'header': 'Fitness'},
+                 {'header': 'Elite'}]})
 
     def CargarDatosResultados(self, dataResultados, iteracion, poblacion):
         maximo = poblacion.Maximo(FuncionObjetivo)
@@ -340,6 +357,9 @@ class AlgoritmoGenetico:
 
     def CargarDatosDeIteraciones(self, dataIteraciones, iteracion, poblacion):
         for cromosoma in poblacion.Cromosomas:
+            elite = "Sí"
+            if not cromosoma.EsElite:
+                elite = "No"
             fila = [iteracion, cromosoma.Valor, FuncionObjetivo(cromosoma),
-                    FuncionFitness(poblacion, cromosoma)]
+                    FuncionFitness(poblacion, cromosoma), elite]
             dataIteraciones.append(fila)
