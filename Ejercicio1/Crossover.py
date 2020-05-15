@@ -1,6 +1,7 @@
 from Ejercicio1.Cromosoma import Cromosoma
 
 
+# Clase meramente informativa para saber los corssovers realizados por la aplicacion
 class Crossover:
     def __init__(self, projenitor1: Cromosoma, projenitor2: Cromosoma, hijo1: Cromosoma,
                  hijo2: Cromosoma, unidades: int):

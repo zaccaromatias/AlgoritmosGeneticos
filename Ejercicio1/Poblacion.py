@@ -1,25 +1,31 @@
 from Ejercicio1.Cromosoma import Cromosoma
 
 
+# Clase que representa una poblacion con su lista de cromosomas
+# Ademas solo por mera informacion contiene los crossover y mutacione realizados
 class Poblacion:
     def __init__(self):
         self.Cromosomas = []
         self.Mutaciones = []
         self.Crossovers = []
 
+    # Devuelve el maximo cromosoma segun su funcion objetivo
     def Maximo(self, funcionObjetivo) -> Cromosoma:
         valorMaximo = max(funcionObjetivo(cromosoma) for cromosoma in self.Cromosomas)
         maximo = list(filter(lambda c: funcionObjetivo(c) == valorMaximo, self.Cromosomas))
         return maximo[0]
 
+    # Devuelve el minimo cromosoma segun su funcion objetivo
     def Minimo(self, funcionObjetivo) -> Cromosoma:
         valorminimo = min(funcionObjetivo(cromosoma) for cromosoma in self.Cromosomas)
         minimo = list(filter(lambda c: funcionObjetivo(c) == valorminimo, self.Cromosomas))
         return minimo[0]
 
+    # Retorna el promedio objetivo de dicha poblacion
     def Promedio(self, funcionObjetivo):
         return sum(funcionObjetivo(cromosoma) for cromosoma in self.Cromosomas) / len(self.Cromosomas)
 
+    # Metodos para mostrar resultados en pantallas
     def PrintCrossovers(self):
         print("/////Crosovers: " + str(len(self.Crossovers)))
         for cross in self.Crossovers:

@@ -1,3 +1,7 @@
+# Clase que solicita la entrada de los parámetros de entrada de configuración
+# para crear una instancia de la clase AlgoritmoGenetico
+# para ejecutar los siguientes métodos del mismo Run(), Print() y ExportToExcel()
+# Mas logica para ejecutar de nuevo el programa
 from Ejercicio1.AlgoritmoGenetico import AlgoritmoGenetico
 from Ejercicio1.Configuracion import Configuracion
 

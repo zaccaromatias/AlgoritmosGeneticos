@@ -1,8 +1,11 @@
+# Importamos las funciones para obtener numeros aleatorios
 from random import randint, uniform, random
+# Para el manejo de la ruta de archivo
 from path import Path
-
-import datetime
 import os
+
+# Para la exportacion a excel
+import datetime
 import xlsxwriter
 
 from Ejercicio1.Cromosoma import Cromosoma
@@ -11,6 +14,10 @@ from Ejercicio1.Mutacion import Mutacion
 from Ejercicio1.Poblacion import Poblacion
 
 
+# Logica del crossover
+# Recive dos cromosomas que son los que va a cruzar
+# Devuelve una tupla de 3 valores donde los dos primeros son los cromosomas hijos de la cruza y el tercero es un valor entero del punto donde se corto
+# Dicho valor de corte es un entero al azar entre 0 y 30 (largo de nuestros cromosomas)
 def AplicarCrosOverDeTipoUnPunto(cromosoma1: Cromosoma, cromosoma2: Cromosoma):
     unidades = randint(0, len(cromosoma1.Valor) - 1)
     primeraParteBinario1 = cromosoma1.Valor[:unidades]
@@ -22,11 +29,16 @@ def AplicarCrosOverDeTipoUnPunto(cromosoma1: Cromosoma, cromosoma2: Cromosoma):
     return Cromosoma(nuevoBinario1), Cromosoma(nuevoBinario2), unidades
 
 
+# De la lista de cromosomas que recive devuelve uno tomado al azar
+# Simplemente toma un valor entero al azar y devuelve el objeto en ese indice
 def SeleccionarCromosomaAlAzar(cromosomas: []) -> Cromosoma:
     numero = randint(0, len(cromosomas) - 1)
     return cromosomas[numero]
 
 
+# Logica de la mutacion
+# Recive un objeto poblacion al cual agregara la mutacion y un Cromosoma el cual es el que va a mutar
+# Simplemente elige un numero entero al azar entre 0 y 30 e invierte el valor de dicho valor en ese indice
 def AplicarMutacion(poblacion: Poblacion, cromosoma: Cromosoma):
     mutacion = Mutacion(cromosoma)
     numeroBit = randint(0, len(cromosoma.Valor) - 1)
@@ -41,33 +53,45 @@ def AplicarMutacion(poblacion: Poblacion, cromosoma: Cromosoma):
     poblacion.Mutaciones.append(mutacion)
 
 
+# Esta es nuestra funcion objetivo dada por el enunciado
+# int(c.Valor,2) convierte nuestro string binario a un numero entero
 def FuncionObjetivo(c: Cromosoma):
     return pow(int(c.Valor, 2) / (pow(2, 30) - 1), 2)
 
 
+# Forma de calcular el fitness de cada cromosoma
+# Funcion objetiva de dicho cromosoma sobre la suma la funcion objetivo de cada cromosoma de la poblacion
 def FuncionFitness(poblacionInicial: Poblacion, cromosoma: Cromosoma):
     return FuncionObjetivo(cromosoma) / sum(
         FuncionObjetivo(cr) for cr in poblacionInicial.Cromosomas)
 
 
+# Clase principal de nuestro programa
 class AlgoritmoGenetico:
+    # Cantidad de genes empleado para la creacion de la poblacion inicial
     dominioFinal = 30
 
+    # Iniciacion de variables, recive el objeto configuracion que contiene la paremetrizacion de nuestro programa
     def __init__(self, configuracion):
         self.Configuracion = configuracion
         self.Poblaciones = []
         self.PoblacionActual = []
 
+    # Metodo principal que realiza las iteraciones del programa
     def Run(self):
         for i in range(self.Configuracion.Iteraciones):
             if i == 0:
+                # Siendo la primera iteracion genera la poblacion inicial
                 self.Poblaciones.append(self.GetPoblacionInicial())
             self.PoblacionActual = self.Poblaciones[len(self.Poblaciones) - 1]
+            # Desmarca e inicializa valores de los cromosomas para evitar valores por referencias y resetear los cromosomas elites
             for cromosoma in self.PoblacionActual.Cromosomas:
                 cromosoma.Reset()
             nuevaPoblacion: Poblacion = self.PoblacionActual
+            # Realiza la logica de elite si asi se deseo correr
             if self.Configuracion.Elite:
                 nuevaPoblacion = self.Elite(nuevaPoblacion)
+            # Variante para una mayor diversidad genetica - agregado extra solo para comparar resultados
             if self.Configuracion.DiversidadGenetica:
                 self.DiversidadGenetica(nuevaPoblacion)
             nuevaPoblacion = self.Seleccionar(nuevaPoblacion)
@@ -75,6 +99,7 @@ class AlgoritmoGenetico:
             self.EvaluarMutacion(nuevaPoblacion)
             self.Poblaciones.append(nuevaPoblacion)
 
+    # Genera la poblacion inicial generando cromosomas con valores binarios totalmente aleatorios
     def GetPoblacionInicial(self) -> Poblacion:
         poblacion = Poblacion()
         for i in range(self.Configuracion.CantidadPoblacionInicial):
@@ -84,6 +109,7 @@ class AlgoritmoGenetico:
             poblacion.Cromosomas.append(Cromosoma(numeroRandom))
         return poblacion
 
+    # Metodo extra para generar una mayor diversidad genetica
     def DiversidadGenetica(self, poblacionInicial: Poblacion):
         similares = list(filter(lambda c: 0.105 >= FuncionFitness(poblacionInicial, c) > 0.09,
                                 poblacionInicial.Cromosomas))
@@ -98,9 +124,15 @@ class AlgoritmoGenetico:
                         list1[numeroBit] = '0'
                     cr.Valor = ''.join(list1)
 
+    # Llama a aplicar seleccion ruleta
     def Seleccionar(self, poblacionInicial: Poblacion) -> Poblacion:
         return self.AplicarSeleccionRuedadeRuleta(poblacionInicial)
 
+    # Logica de seleccion de cromosomas a traves del metodo de la ruleta
+    # Segun el fitnes de cada cromosomas le seteamos los valores Minimos y maximos de la porcion que ocuparian
+    # (entre 0 y 1) acumulamos
+    # Seleccionamos un numero decimal aleatorio entre 0 y 1 y verificamos a que cromosoma corresponde segun su porcion
+    # Asi hasta completar poblacion
     def AplicarSeleccionRuedadeRuleta(self, poblacionInicial: Poblacion) -> Poblacion:
         porciones = []
         nuevaPoblacion = Poblacion()
@@ -120,13 +152,16 @@ class AlgoritmoGenetico:
             porciones.append(cromosoma.PorcionRuleta)
 
         for i in range(self.Configuracion.CantidadPoblacionInicial - len(elite)):
-            numero = uniform(0, porciones[len(porciones)-1].ValorMaximo)
+            numero = uniform(0, porciones[len(porciones) - 1].ValorMaximo)
             lista = list(filter(
                 lambda c: c.PorcionRuleta.ValorMinimo <= numero < c.PorcionRuleta.ValorMaximo,
                 poblacionInicial.Cromosomas))
             nuevaPoblacion.Cromosomas.append(lista[0].Clone())
         return nuevaPoblacion
 
+    # Logica para marcar los mejores 2 cromosomas segun su fitnes
+    # Recorre dos veces buscando el mayor fitnes entre los Cromosomas  que no son elites
+    # Luego el cromosoma correspondiente para marcarlo como elite
     def Elite(self, poblacionInicial: Poblacion) -> Poblacion:
         countTrue = 0
         while countTrue < 2:
@@ -141,6 +176,12 @@ class AlgoritmoGenetico:
                     countTrue += 1
         return poblacionInicial
 
+    # Recorre los cromosomas de la poblacion
+    # Para ir seleccionando parejas para ver si aplica crosovers o no
+    # En caso de hacerlo llama a la logica agrega los cromosomas hijos de la cruza
+    # Y a modo informativo los va guardando en una coleccion
+    # En caso de no aplicar crossover pasa dicha pareja de cromosomas a la nueva poblacion
+    # y en caso de los cromosomas Elites los pasa directamente
     def EvaluarCrossover(self, poblacionInicial: Poblacion) -> Poblacion:
         nuevaPoblacion = Poblacion()
         elite = list(filter(lambda c: c.EsElite == True, poblacionInicial.Cromosomas))
@@ -159,6 +200,7 @@ class AlgoritmoGenetico:
                 nuevaPoblacion.Cromosomas.append(cromosoma2.Clone())
         return nuevaPoblacion
 
+    # Obtiene un valor para ver si aplica o no crossover segun el porcentaje
     def AplicaCrossover(self):
         numero = random()
         if 0 <= numero <= self.Configuracion.ProbabilidadCrossover:
@@ -166,30 +208,34 @@ class AlgoritmoGenetico:
         else:
             return False
 
+    # Obtiene un valor para ver si aplica o no Mutacion segun el porcentaje
     def AplicaMutacion(self):
         numero = random()
         if 0 <= numero <= self.Configuracion.ProbabilidadMutacion:
-            print("MUTACIÓN")
             return True
         else:
             return False
 
+    # Recorre los cromosomas no elites de una poblacion y evalua si debe aplciar mutacion
     def EvaluarMutacion(self, poblacionInicial: Poblacion):
-        poblacion = list(filter(lambda c: c.EsElite == False, poblacionInicial.Cromosomas))
-        for cromosoma in poblacion:
+        cromosomasNoElites = list(filter(lambda c: c.EsElite == False, poblacionInicial.Cromosomas))
+        for cromosoma in cromosomasNoElites:
             if self.AplicaMutacion():
                 AplicarMutacion(poblacionInicial, cromosoma)
 
+    # Muestra en pantalla los resultados de las iteraciones y el maximo obtenido
     def Print(self):
-        self.PrintIteraciones()
+        # self.PrintIteraciones()
         self.PrintMaximo()
 
+    # Muestra en pantalla el maximo de todas las poblaciones
     def PrintMaximo(self):
         print("******* Maximo Calculado: ")
         maximo = self.GetMaximoTotal()
         print("- Iteracion: " + str(maximo[0]) + "- Objetivo: " + str(
             FuncionObjetivo(maximo[1])) + "- Cromosoma: " + maximo[1].Valor)
 
+    # Devuelve el cromosoma con el valor objetivo maximo obtenido
     def GetMaximoTotal(self):
         maximos = []
         iteracion = 1
@@ -200,6 +246,7 @@ class AlgoritmoGenetico:
         maximo = list(filter(lambda c: FuncionObjetivo(c[1]) == valorMaximo, maximos))[0]
         return maximo
 
+    # Muestra en pantalla valores de las iteraciones
     def PrintIteraciones(self):
         iteracion = 1
         for poblacion in self.Poblaciones:
@@ -209,22 +256,26 @@ class AlgoritmoGenetico:
 
     # ----------------------------------------------------------------------------------------------------------------------
 
+    # Exporta a excel los resultados, iteraciones, maximos, minimos, promedios junto a la grafica
     def ExportToExcel(self):
         iteracion = 1
         dataResultados = []
         dataIteraciones = []
         dataCrosovers = []
         dataMutacion = []
+        # Carga las diferentes listas con los correspondiente valores
         for poblacion in self.Poblaciones:
             self.CargarDatosDeIteraciones(dataIteraciones, iteracion, poblacion)
             self.CargarDatosCrossovers(dataCrosovers, iteracion, poblacion)
             self.CargarDatosMutaciones(dataMutacion, iteracion, poblacion)
             self.CargarDatosResultados(dataResultados, iteracion, poblacion)
             iteracion += 1
+        # Genera un archivo xlsx con la siguiente nomenclatura YYYY-mm-dd-HH-MM-S.xlsx y lo genera dentro de la carpeta Excels
         name = str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")) + '.xlsx'
         pathExcels = "Excels/" + name
         workbook = xlsxwriter.Workbook(pathExcels)
         bold = workbook.add_format({'bold': 1})
+        #Genera los sheet con cada uno de los datos
         self.CargarSheetDeResultados(workbook, dataResultados, bold)
         self.CargarSheetDeIteraciones(workbook, dataIteraciones, bold)
         self.CargarSheetCrossovers(workbook, dataCrosovers, bold)
