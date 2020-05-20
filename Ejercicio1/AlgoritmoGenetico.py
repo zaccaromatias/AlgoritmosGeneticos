@@ -16,7 +16,8 @@ from Ejercicio1.Poblacion import Poblacion
 
 # Logica del crossover
 # Recive dos cromosomas que son los que va a cruzar
-# Devuelve una tupla de 3 valores donde los dos primeros son los cromosomas hijos de la cruza y el tercero es un valor entero del punto donde se corto
+# Devuelve una tupla de 3 valores donde los dos primeros son los cromosomas hijos de la cruza y el tercero es un valor
+# entero del punto donde se corto
 # Dicho valor de corte es un entero al azar entre 0 y 30 (largo de nuestros cromosomas)
 def AplicarCrosOverDeTipoUnPunto(cromosoma1: Cromosoma, cromosoma2: Cromosoma):
     unidades = randint(0, len(cromosoma1.Valor) - 1)
@@ -84,7 +85,8 @@ class AlgoritmoGenetico:
                 # Siendo la primera iteracion genera la poblacion inicial
                 self.Poblaciones.append(self.GetPoblacionInicial())
             self.PoblacionActual = self.Poblaciones[len(self.Poblaciones) - 1]
-            # Desmarca e inicializa valores de los cromosomas para evitar valores por referencias y resetear los cromosomas elites
+            # Desmarca e inicializa valores de los cromosomas para evitar valores por referencias y resetear los
+            # cromosomas elites
             for cromosoma in self.PoblacionActual.Cromosomas:
                 cromosoma.Reset()
             nuevaPoblacion: Poblacion = self.PoblacionActual

@@ -2,7 +2,7 @@ from Ejercicio1.Cromosoma import Cromosoma
 
 
 # Clase que representa una poblacion con su lista de cromosomas
-# Ademas solo por mera informacion contiene los crossover y mutacione realizados
+# Ademas solo por mera informacion contiene los crossovers y mutaciones realizados
 class Poblacion:
     def __init__(self):
         self.Cromosomas = []

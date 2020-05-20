@@ -21,6 +21,8 @@ def IngresarConfiguracion() -> Configuracion:
         elite = True
     else:
         elite = False
+
+    # CÓDIGO PARA PRUEBA DE SISTEMA
     # printCrossovers = input("Imprimir Crossovers (bool): ")
     # printMutaciones = input("Imprimir Mutaciones (bool): ")
     # printCrossoversBool = False

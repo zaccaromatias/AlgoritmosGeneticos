@@ -1,5 +1,6 @@
 from Ejercicio1.Cromosoma import Cromosoma
 
+
 # Clase meramente informativa para saber las mutaciones realizadas por la aplicacion
 class Mutacion:
     def __init__(self, original: Cromosoma):

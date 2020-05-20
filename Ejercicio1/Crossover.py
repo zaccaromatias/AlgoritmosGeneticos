@@ -13,9 +13,9 @@ class Crossover:
 
     def MyPrint(self):
         print(
-            "//Projenitor1: " + str(int(self.Projenitor1.Valor, 2)) + " --Binario : " + self.Projenitor1.Valor)
+            "//Progenitor1: " + str(int(self.Projenitor1.Valor, 2)) + " --Binario : " + self.Projenitor1.Valor)
         print(
-            "//Projenitor2: " + str(int(self.Projenitor2.Valor, 2)) + " --Binario : " + self.Projenitor2.Valor)
+            "//Progenitor2: " + str(int(self.Projenitor2.Valor, 2)) + " --Binario : " + self.Projenitor2.Valor)
         print(
             "//Hijo1: " + str(int(self.Hijo1.Valor, 2)) + " --Binario : " + self.Hijo1.Valor)
         print(
