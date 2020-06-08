@@ -1,18 +1,22 @@
-from Object import Object
+from Ejercicio2.Object import Object
+
+
 class Item:
     pass
-#Paquetes: "Nombre del paquete", Kilos, Precio
+
+
+# Paquetes: "Nombre del paquete", Precio, Volumen
 class Item:
     objects = []
-    objects.append( Object( 20, 150 ) )
-    objects.append( Object( 40, 325 ) )
-    objects.append( Object( 50, 600 ) )
-    objects.append( Object( 36, 805 ) )
-    objects.append( Object( 25, 430 ) )
-    objects.append( Object( 64, 1200 ) )
-    objects.append( Object( 54, 770 ) )
-    objects.append( Object( 18, 60 ) )
-    objects.append( Object( 46, 930 ) )
-    objects.append( Object( 28, 353 ) )
+    objects.append(Object(1, 20, 150))
+    objects.append(Object(2, 40, 325))
+    objects.append(Object(3, 50, 600))
+    objects.append(Object(4, 36, 805))
+    objects.append(Object(5, 25, 430))
+    objects.append(Object(6, 64, 1200))
+    objects.append(Object(7, 54, 770))
+    objects.append(Object(8, 18, 60))
+    objects.append(Object(9, 46, 930))
+    objects.append(Object(10, 28, 353))
 
     MAXIMUMWEIGHT = 4200

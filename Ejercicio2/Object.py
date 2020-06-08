@@ -1,6 +1,6 @@
 class Object:
-    def __init__(self, weight, value):
-        self.weight = weight
-        self.value = value
-        self.ValuePerUnit = self.value / self.weight
-
+    def __init__(self, name, price, volumen):
+        self.name = name
+        self.price = price
+        self.volumen = volumen
+        self.volumenPerUnit = self.volumen / self.price
