@@ -31,7 +31,7 @@ sumvolumen = 0
 
 voltotal = 0
 count = 0
-for i in range(len(Item.objects) - 1):
+for i in range(len(Item.objects)):
     object = Item.objects[i]
     if (voltotal + object.volumen) <= mochila.capacity:
         resultado.append(count)

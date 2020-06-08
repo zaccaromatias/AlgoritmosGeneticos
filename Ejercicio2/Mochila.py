@@ -18,7 +18,6 @@ def Subsets():
     objects = len(Item.objects)
     # operaciones de bit a bit
     countsubset = int(1 << objects)
-    index = 0
     global subsets
 
     for p in range(countsubset):
@@ -30,10 +29,7 @@ def Subsets():
             if (p and (1 << item)) > 0:
                 subset.append(item)
                 subset[item] = Item.objects[item]
-            if len(subset) > 0:
-                subsets[p] = subset
-        countsubset -= 1
-        index += 1
+        subsets[p] = subset
     return subsets
 
 
