@@ -1,6 +1,5 @@
 from Ejercicio2.Listitem import Item
 
-
 class MochilaGreevy:
     def __init__(self, price, capacity):
         self.price = price
@@ -18,7 +17,7 @@ def SelectionSort(list, tam):
     for i in range(0, tam - 1):
         min = i
         for j in range(i + 1, tam):
-            if list[min].weight > list[j].weight:
+            if list[min].volumenPerUnit > list[j].volumenPerUnit:
                 min = j
         aux = list[min]
         list[min] = list[i]
