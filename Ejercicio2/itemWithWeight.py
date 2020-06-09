@@ -2,6 +2,7 @@ from Ejercicio2.ObjectWithWeight import ObjectWithWeight
 
 class Item:
     pass
+
 # Item: "Nombre del paquete", Precio, Volumen
 class Item:
     objects = []
