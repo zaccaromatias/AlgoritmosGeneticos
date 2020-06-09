@@ -4,8 +4,7 @@ from Ejercicio2.Object import Object
 class Item:
     pass
 
-
-# Paquetes: "Nombre del paquete", Precio, Volumen
+# Item: "Nombre del paquete", Precio, Volumen
 class Item:
     objects = []
     objects.append(Object(1, 20, 150))

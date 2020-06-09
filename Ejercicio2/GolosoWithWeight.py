@@ -1,6 +1,6 @@
-from Ejercicio2.Listitem import Item
+from Ejercicio2.itemWithWeight import Item
 
-class MochilaGreevy:
+class MochilaWithWeightGreevy:
     def __init__(self, price, capacity):
         self.price = price
         self.capacity = capacity
@@ -9,7 +9,7 @@ class MochilaGreevy:
         self.price += object.price
 
 
-mochila = MochilaGreevy(0, Item.MAXIMUMWEIGHT)
+mochila = MochilaWithWeightGreevy(0, Item.MAXIMUMWEIGHT)
 
 
 # algoritmo de ordenación por selección
@@ -26,25 +26,26 @@ def SelectionSort(list, tam):
 
 resultado = []
 sumprice = 0
-sumvolumen = 0
+sumweight = 0
 
 voltotal = 0
 count = 0
+
 for i in range(len(Item.objects)):
     object = Item.objects[i]
-    if (voltotal + object.volumen) <= mochila.capacity:
+    if (voltotal + object.weight) <= mochila.capacity:
         resultado.append(count)
         resultado[count] = object
         mochila.PutObject(object)
-        voltotal += object.volumen
-        sumvolumen += object.volumen
+        voltotal += object.weight
+        sumweight += object.weight
         sumprice += object.price
         count += 1
 
 print("Resultado: Fracciones de los objetos en la mochila: ")
 for i in range(len(resultado)):
-    print("Objeto ", resultado[i].name, " Precio: ", resultado[i].price, " Volumen: ", resultado[i].volumen,
-          " Porcion por unidad o Ratio: ", resultado[i].volumenPerUnit)
+    print("Objeto ", resultado[i].name, " Precio: ", resultado[i].price, " Volumen: ", resultado[i].weight,
+          " Porcion por unidad o Ratio: ", resultado[i].weightPerUnit)
 print()
-print("Volumen total en cm3: ", sumvolumen)
+print("Volumen total en cm3: ", sumweight)
 print("Precio total: $", sumprice)
