@@ -4,7 +4,7 @@ from Ejercicio2.Object import Object
 class Item:
     pass
 
-# Item: "Nombre del paquete", Precio, Volumen
+# Item: "Nombre del item", Precio, Volumen
 class Item:
     objects = []
     objects.append(Object(1, 20, 150))
@@ -17,5 +17,5 @@ class Item:
     objects.append(Object(8, 18, 60))
     objects.append(Object(9, 46, 930))
     objects.append(Object(10, 28, 353))
-
+#La capacidad maxima de la mochila
     MAXIMUMWEIGHT = 4200
