@@ -4,7 +4,7 @@ class Item:
     pass
 
 # Item: "Nombre del paquete", Precio, Volumen
-class Item:
+class Itemweight:
     objects = []
     objects.append(ObjectWithWeight(1, 72, 1800))
     objects.append(ObjectWithWeight(2, 36, 600))

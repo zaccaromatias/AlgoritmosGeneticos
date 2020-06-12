@@ -1,5 +1,7 @@
 from Ejercicio2.Listitem import Item
 import Ejercicio2.Funtion as funct
+import Ejercicio2.Datagrid as data
+
 #Variable global
 subsets = [] #variable para guarda todos los subconjunto
 Bestsubset = [] #variable para guarda el mejor subconjunto
@@ -50,10 +52,12 @@ class Mochila:
         best = BestSubsets( Sub, Bestsubset )
         global sumvolumen
         global sumprice
-        for i in range( len( best ) ):
+        data.GenerarGrid(best,"Volumen cm3","Volumen total en cm3","Precio total",False)
+
+        """for i in range( len( best ) ):
             print( "Objeto ", best[i].name, " Precio: ", best[i].price, " Volumen: ", best[i].volumen )
             sumvolumen += best[i].volumen
             sumprice += best[i].price  # Equivale a sumprice = sumprice + m.price
         print()
         print( "Volumen total en cm3: ", sumvolumen )
-        print( "Precio total: $", sumprice )
+        print( "Precio total: $", sumprice )"""

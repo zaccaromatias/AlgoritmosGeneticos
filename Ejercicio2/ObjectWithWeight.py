@@ -1,6 +1,6 @@
 class ObjectWithWeight:
-    def __init__(self, name, price, weight):
+    def __init__(self, name, price, unit):
         self.name = name
         self.price = price
-        self.weight = weight
-        self.weightPerUnit = self.weight / self.price
+        self.unit = unit
+        self.Ratio = self.unit / self.price

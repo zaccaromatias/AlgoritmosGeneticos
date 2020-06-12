@@ -8,5 +8,5 @@ def GetValue(item):
 def GetVolumen(item):
     sumsumlocal = 0
     for t in range(len(item)):
-        sumsumlocal += item[t].volumen
+        sumsumlocal += item[t].unit
     return sumsumlocal
