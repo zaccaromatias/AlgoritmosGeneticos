@@ -1,10 +1,7 @@
 from Ejercicio2.Mochila import Mochila
 from Ejercicio2.MochilaGreedy import MochilaGreevy
-from Ejercicio2.GolosoWithWeight import MochilaWithWeightGreevy
 from Ejercicio2.Listitem import Item
 from Ejercicio2.itemWithWeight import Itemweight
-import tkinter as tk
-from tkinter import ttk
 
 def Initial():
     print( "Elegir el punto que desea ejecutar:\n "
@@ -12,7 +9,7 @@ def Initial():
            " 2- Algoritmo Greedy con volumen----> Marque B \n"
            " 3- Búsqueda exhaustiva con gramo ----> Marque C\n"
            " 4- Algoritmo Greedy con gramo----> Marque D \n"
-           " 5- Si desea salir----> Marque E \n")
+           " 5- Si desea salir----> Marque S \n")
 
 class Program:
     def __init__(self):
@@ -24,13 +21,13 @@ class Program:
             Initial()
             val = input( "Ingrese la letra elegida : " )
             if val.lower() == "a":
-                val = Mochila.Run(Item.objects)
+                Mochila.Run(Item)
             elif val.lower() == "b":
-                val = MochilaGreevy.Run(Item.objects)
+                MochilaGreevy.Run(Item)
             elif val.lower() == "c":
-                val = Mochila.Run(Itemweight.objects)
+                Mochila.Run(Itemweight)
             elif val.lower() == "d":
-                val = Mochila.Run(Itemweight.objects)
+                Mochila.Run(Itemweight)
             elif val.lower() == "s":
                 exit = True
             exit = True

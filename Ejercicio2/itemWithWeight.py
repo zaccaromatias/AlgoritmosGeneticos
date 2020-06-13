@@ -1,4 +1,4 @@
-from Ejercicio2.ObjectWithWeight import ObjectWithWeight
+from Ejercicio2.Object import Object
 
 class Item:
     pass
@@ -6,8 +6,8 @@ class Item:
 # Item: "Nombre del paquete", Precio, Volumen
 class Itemweight:
     objects = []
-    objects.append(ObjectWithWeight(1, 72, 1800))
-    objects.append(ObjectWithWeight(2, 36, 600))
-    objects.append(ObjectWithWeight(3, 60, 1200))
+    objects.append(Object(1, 72, 1800))
+    objects.append(Object(2, 36, 600))
+    objects.append(Object(3, 60, 1200))
 
     MAXIMUMWEIGHT = 3000

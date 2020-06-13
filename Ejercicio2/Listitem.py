@@ -1,10 +1,9 @@
 from Ejercicio2.Object import Object
 
-
 class Item:
     pass
 
-# Item: "Nombre del item", Precio, Volumen
+# Item: "Nombre del paquete", Precio, Volumen
 class Item:
     objects = []
     objects.append(Object(1, 20, 150))

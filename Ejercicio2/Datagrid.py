@@ -5,7 +5,8 @@ class Datagrig:
 
 def GenerarGrid(items, valhead,text1,text2,greedy):
     root = Tk()
-    if greedy == False:
+    #El tamaña del grid depende del algoritmo
+    if not greedy:
         root.geometry("300x300")
     else:
         root.geometry("450x300")
@@ -15,14 +16,15 @@ def GenerarGrid(items, valhead,text1,text2,greedy):
     frame = Frame()
     frame.pack()
     col = ""
-    if greedy == False:
+    if not greedy:
         col = (1, 2, 3)
     else:
-        col=(1, 2, 3, 4)
+        col = (1, 2, 3, 4)
     tree = ttk.Treeview(frame, columns=col, height=10, show="headings")
     tree.pack(side='left')
 
-    if greedy == False:
+    # Formando la cabecera del grid
+    if not greedy:
         tree.heading(1, text="Nombre")
         tree.heading(2, text="Precio")
         tree.heading(3, text=valhead)
@@ -47,15 +49,15 @@ def GenerarGrid(items, valhead,text1,text2,greedy):
     sumvolumen = 0
 
     for val in items:
-        if greedy == False:
+        if not greedy:
             tree.insert('', 'end', values=(val.name, val.price, val.unit))
         else:
             tree.insert('', 'end', values=(val.name, val.price, val.unit, val.Ratio))
         sumvolumen += val.unit
         sumprice += val.price  # Equivale a sumprice = sumprice + m.price
 
-    lab = ttk.Label(root,wraplength="4i", justify="left", anchor="ne",padding=(10, 2, 20, 6), text=text1+": {}".format(sumvolumen))
-    lab1 = ttk.Label(root,wraplength="4i", justify="left", anchor="ne",padding=(10, 2, 20, 6), text=text2+": ${}".format(sumprice))
+    lab = ttk.Label(root, wraplength="4i", justify="left", anchor="ne", padding=(10, 2, 20, 6), text=text1+": {}".format( sumvolumen ))
+    lab1 = ttk.Label(root, wraplength="4i", justify="left", anchor="ne", padding=(10, 2, 20, 6), text=text2+": ${}".format( sumprice ))
 
     lab.pack(fill='x')
     lab1.pack(fill='x')
