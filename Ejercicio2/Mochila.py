@@ -73,8 +73,8 @@ class Mochila:
             if (subConjunto.GetVolumen() + object.unit) <= self.Maximum:
                 subConjunto.items.append(object)
             else:
-                self.MejorCombinacion = subConjunto
-                return
+                continue
+        self.MejorCombinacion = subConjunto
 
     def BusquedaGredy(self):
         self.SetMejorCombinacionPorGreedy()
