@@ -1,4 +1,4 @@
-from Ejercicio2.Listitem import Item
+from Ejercicio2.Items import Item
 
 
 def ConstruirPosiblesCombinaciones(objetos: []) -> []:

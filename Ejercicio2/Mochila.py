@@ -1,59 +1,81 @@
-import Ejercicio2.Funtion as funct
-import Ejercicio2.Datagrid as data
+from Ejercicio2.SubConjunto import SubConjunto
 
-#Variable global
-subsets = [] #variable para guarda todos los subconjunto
-Bestsubset = [] #variable para guarda el mejor subconjunto
-best = []
-
-
-def Subsets(items,subsets):
-    objects = len(items.objects)
-    # operaciones de bit a bit --> te permite ver cuando subconjunto va a tener
-    countsubset = int(1 << objects)
-    index = 0
-    for p in range(countsubset):
-        subsets.append(p)
-        subset = []
-        index = 0
-        for item in range(objects):
-            """"" 
-            usando la mascara para la operacion binaria.
-            Permite de definir el rango entre 1 y 0.
-            Nos permite de simplificar usar de funcion
-            Las operaciones que sobre ella se realizan son rapidas
-            Nos permite tener un menor carga  de pila.
-            Nos permite de resolver el problema sin iterar  
-            """""
-            if (p & (1 << item)) > 0:
-                subset.append(index)
-                subset[index] = items.objects[item]
-                index += 1
-        subsets[p] = subset
-    return subsets
-
-
-def BestSubsets(Sub, MAXIMUMWEIGHT, Bestsubset):
-    best = 0
-    for b in range(len(Sub)):
-        #Comparando si el volumen de esta conjunto esta dentro del limite max de la mochila
-        if (funct.GetVolumen(Sub[b]) <= MAXIMUMWEIGHT):
-            val = funct.GetValue(Sub[b])
-            #Busquando el mejor subconjunto
-            if (val > best):
-                Bestsubset = Sub[b]
-                best = val
-    return Bestsubset
 
 class Mochila:
-    def __init__(self, Obj):
-        self.Obj = Obj
+    # La capacidad maxima de la mochila
 
-    global subsets
-    global Bestsubset
+    def __init__(self, objetos, maximum, nombrePropiedad, unidad):
+        self.Objetos = objetos
+        self.Combinaciones = []  # variable para guarda todos los subconjunto
+        self.MejorCombinacion: SubConjunto = None  # variable para guarda el mejor subconjunto
+        self.Maximum = maximum
+        self.NombrePropiedad = nombrePropiedad
+        self.Unidad = unidad
 
-    def Run(self):
-        Sub = Subsets( self, subsets )
-        best = BestSubsets( Sub, self.MAXIMUMWEIGHT, Bestsubset )
+    def GenerarCombinaciones(self):
+        cantidad = len(self.Objetos)
+        self.Combinaciones = []  # Reset combinaciones
+        # operaciones de bit a bit --> te permite ver cuantos subconjuntos va a tener, es decir cantidad total de combinaciones
+        totalCombinaciones = int(1 << cantidad)
+        index = 0
+        for p in range(totalCombinaciones):
+            subset = []
+            index = 0
+            for item in range(cantidad):
+                """"" 
+                Usa lo que se llama mascara para operaciones binarias.
+                Permite de definir en que indices hay un 1                
+                Las operaciones que sobre ella se realizan son rapidas
+                Nos permite tener un menor carga  de pila.
+                Nos permite resolver el problema sin iterar demaciadas veces  
+                """""
+                if (p & (1 << item)) > 0:
+                    subset.append(index)
+                    subset[index] = self.Objetos[item]
+                    index += 1
+            subconjunto = SubConjunto(subset)
+            self.Combinaciones.append(subconjunto)
+
+    def SetMejorCombinacion(self):
+        bestPrice = 0
+        # Itera todas las combinaciones
+        for indice in range(len(self.Combinaciones)):
+            # Compara si el volumen del subconjuto esta dentro del limite maximo de la mochila
+            if (self.Combinaciones[indice].GetVolumen() <= self.Maximum):
+                price = self.Combinaciones[indice].GetPrice()
+                # Busquando el mejor subconjunto
+                if (price > bestPrice):
+                    self.MejorCombinacion = self.Combinaciones[indice]
+                    bestPrice = price
+
+    def PrintMejorCombinacion(self):
+        print("Mejor Combinacion - ", self.NombrePropiedad, " Total(", self.Unidad, "): ",
+              self.MejorCombinacion.GetVolumen(), " - Precio: $",
+              self.MejorCombinacion.GetPrice())
+        print("Objetos:")
+        for object in self.MejorCombinacion.items:
+            print("Objeto: ", object.name, " - ", self.NombrePropiedad, "(", self.Unidad, "): ", object.unit,
+                  " - Precio ($): ", object.price)
+
         # Grid para mostrar el resultado final
-        data.GenerarGrid(best,"Volumen cm3","Volumen total en cm3","Precio total",False)
+        # data.GenerarGrid(self.MejorCombinacion.GetPrice(), "Volumen cm3", "Volumen total en cm3", "Precio total", False)
+
+    def BusquedaExhaustiva(self):
+        self.GenerarCombinaciones()
+        self.SetMejorCombinacion()
+        self.PrintMejorCombinacion()
+
+    def SetMejorCombinacionPorGreedy(self):
+        subConjunto = SubConjunto([])
+        self.Objetos.sort(key=lambda x: x.Ratio, reverse=False)
+        for i in range(len(self.Objetos)):
+            object = self.Objetos[i]
+            if (subConjunto.GetVolumen() + object.unit) <= self.Maximum:
+                subConjunto.items.append(object)
+            else:
+                self.MejorCombinacion = subConjunto
+                return
+
+    def BusquedaGredy(self):
+        self.SetMejorCombinacionPorGreedy()
+        self.PrintMejorCombinacion()
