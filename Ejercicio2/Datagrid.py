@@ -7,9 +7,9 @@ def GenerarGrid(items, valhead,text1,text2,greedy):
     root = Tk()
     #El tamaña del grid depende del algoritmo
     if not greedy:
-        root.geometry("300x300")
+        root.geometry("300x300+900+300")
     else:
-        root.geometry("450x300")
+        root.geometry("450x300+900+300")
 
     
     root.title('El valor maximo que alcanzo entrar en la mochila')

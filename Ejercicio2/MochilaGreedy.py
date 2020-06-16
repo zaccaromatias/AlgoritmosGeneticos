@@ -20,7 +20,7 @@ def best(items,MAXIMUMWEIGHT):
     global  voltotal
     global count
     #empezar desde el final por que esta ordenado de menor a mayor
-    for i in range(len(items - 1)):
+    for i in range(len(items)):
         object = items[i]
         if (voltotal + object.unit) <= MAXIMUMWEIGHT:
             resultado.append(count)
