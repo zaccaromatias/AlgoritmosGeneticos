@@ -6,6 +6,7 @@ Publicacion del codigo que resuelve los diferentes ejercicios de la materia.
 # Ejercicios
 - Ejercicio 1 [Ver](https://github.com/zaccaromatias/AlgoritmosGeneticos/tree/master/Ejercicio1)
 - Ejercicio 2 [Ver](https://github.com/zaccaromatias/AlgoritmosGeneticos/tree/master/Ejercicio2)
+- Ejercicio 3 [Ver](https://github.com/zaccaromatias/AlgoritmosGeneticos/tree/master/Ejercicio3)
 - Trabajo Practico Invesigacion Fractales [Ver](https://github.com/zaccaromatias/AlgoritmosGeneticos/tree/master/TP_Invenstigacion_Fractales)
 
 
