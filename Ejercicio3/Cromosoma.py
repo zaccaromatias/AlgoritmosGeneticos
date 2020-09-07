@@ -1,13 +1,13 @@
-from Ejercicio1.PorcionRuleta import PorcionRuleta
+from Ejercicio3.PorcionRuleta import PorcionRuleta
 
 
 # Representa a un cromosoma con su valor, si es marcado como elite
 # y la porcion de ruleta que ocuparia en una poblacion y su fitness
 class Cromosoma:
-    def __init__(self, valor):
-        self.Valor = valor
+    def __init__(self):
         self.EsElite = False
         self.PorcionRuleta = PorcionRuleta()
+        self.Ciudades=[]
 
         # Resetea valores
 
@@ -20,8 +20,8 @@ class Cromosoma:
         self.EsElite = True
 
     # cambia valor del cromosoma
-    def Mutar(self, valor):
-        self.Valor = valor
+    def Mutar(self):
+        pass
 
     # Devuelve una instancia nueva pero con mismos valores
     # Para evitar valores por referencia
@@ -29,4 +29,5 @@ class Cromosoma:
         cromosoma = Cromosoma(self.Valor)
         cromosoma.EsElite = self.EsElite
         cromosoma.PorcionRuleta = self.PorcionRuleta
+        cromosoma.Ciudades = self.Ciudades
         return cromosoma

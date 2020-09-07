@@ -8,10 +8,10 @@ import os
 import datetime
 import xlsxwriter
 
-from Ejercicio1.Cromosoma import Cromosoma
-from Ejercicio1.Crossover import Crossover
-from Ejercicio1.Mutacion import Mutacion
-from Ejercicio1.Poblacion import Poblacion
+from Ejercicio3.Cromosoma import Cromosoma
+from Ejercicio3.Crossover import Crossover
+from Ejercicio3.Mutacion import Mutacion
+from Ejercicio3.Poblacion import Poblacion
 
 
 # Logica del crossover

@@ -2,9 +2,9 @@
 # para crear una instancia de la clase AlgoritmoGenetico
 # para ejecutar los siguientes métodos del mismo Run(), Print() y ExportToExcel()
 # Mas logica para ejecutar de nuevo el programa
-from Ejercicio1.AlgoritmoGenetico import AlgoritmoGenetico
-from Ejercicio1.Configuracion import Configuracion
-
+from Ejercicio3.AlgoritmoGenetico import AlgoritmoGenetico
+from Ejercicio3.Configuracion import Configuracion
+from Ejercicio3.DistanciaHelper import DistanciaHelper
 
 def IngresarConfiguracion() -> Configuracion:
     porcentajeCrossOver = float(input("Porcentaje Crossover (float): "))
@@ -42,6 +42,7 @@ class Program:
 
     def Run(self):
         exit = False
+        DistanciaHelper.LoadTablaDistanicaYCapitales()
         while not exit:
             configuracion = IngresarConfiguracion()
             algoritmo = AlgoritmoGenetico(configuracion)

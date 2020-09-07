@@ -1,5 +1,5 @@
-from Ejercicio1.Configuracion import Configuracion
-from Ejercicio1.AlgoritmoGenetico import AlgoritmoGenetico
+from Ejercicio3.Configuracion import Configuracion
+from Ejercicio3.AlgoritmoGenetico import AlgoritmoGenetico
 from tkinter import *
 
 

@@ -1,4 +1,4 @@
-from Ejercicio1.Cromosoma import Cromosoma
+from Ejercicio3.Cromosoma import Cromosoma
 
 
 # Clase que representa una poblacion con su lista de cromosomas

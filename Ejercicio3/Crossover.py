@@ -1,4 +1,4 @@
-from Ejercicio1.Cromosoma import Cromosoma
+from Ejercicio3.Cromosoma import Cromosoma
 
 
 # Clase meramente informativa para saber los corssovers realizados por la aplicacion
