@@ -1,4 +1,5 @@
 from pandas import DataFrame
+import numpy as np
 
 from Ejercicio3.Capital import Capital
 from itertools import islice
@@ -8,7 +9,7 @@ from openpyxl import load_workbook
 class DistanciaHelper:
     TablaDistancias = None
     Capitales = []
-
+    Visitadas = np.arange(23)
     @staticmethod
     def LoadTablaDistanicaYCapitales():
         wb = load_workbook(filename='TablaCapitales.xlsx')
@@ -28,4 +29,19 @@ class DistanciaHelper:
 
     @staticmethod
     def GetDistancia(capitalOrigen: Capital,capitalDestino :Capital) -> int:
-        return DistanciaHelper.TablaDistancias[capitalOrigen.indice, capitalDestino.indice]
+        return DistanciaHelper.TablaDistancias[capitalOrigen.Indice, capitalDestino.Indice]
+
+    @staticmethod
+    def GetAllCuidad(capital:Capital):
+        print("Indice"+("Valor").center(30, " "))
+        for cap in capital:
+            print(repr(cap.Indice) + repr(cap.Nombre).center(40, " "))
+
+    @staticmethod
+    def InicialCuidadVisitado(capital: Capital):
+        print("Indice" + ("Valor").center(30, " "))
+        for cap in range(len(capital) - 1):
+            DistanciaHelper.Visitadas[cap] = 0
+
+
+

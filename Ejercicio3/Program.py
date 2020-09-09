@@ -5,6 +5,7 @@
 from Ejercicio3.AlgoritmoGenetico import AlgoritmoGenetico
 from Ejercicio3.Configuracion import Configuracion
 from Ejercicio3.DistanciaHelper import DistanciaHelper
+from Ejercicio3.Heuristica import Heuristica
 
 def IngresarConfiguracion() -> Configuracion:
     porcentajeCrossOver = float(input("Porcentaje Crossover (float): "))
@@ -35,6 +36,12 @@ def IngresarConfiguracion() -> Configuracion:
     return Configuracion(porcentajeCrossOver, porcentajeMutacion, cantidadInicialPoblacion, iteraciones,
                          elite, diversidadGenetica)
 
+def Initial():
+    print("Elegir el punto que desea ejecutar:\n "
+          "1 - Heurística Desde Determinada Ciudad ----> Marque 1\n"
+          " 2 - Heurística Óptimo ----> Marque 2 \n"
+          " 3 - Algoritmo Genético ----> Marque 3\n"
+          " 4 - Si desea salir ----> Marque 5 \n")
 
 class Program:
     def __init__(self):
@@ -43,12 +50,26 @@ class Program:
     def Run(self):
         exit = False
         DistanciaHelper.LoadTablaDistanicaYCapitales()
-        while not exit:
-            configuracion = IngresarConfiguracion()
+        cuidad = DistanciaHelper.Capitales
+        DistanciaHelper.GetAllCuidad(cuidad)
+        DistanciaHelper.InicialCuidadVisitado(cuidad)
+        print()
+        Initial()
+        val = input("Ingrese Opcion : ")
+        while True:
+            """configuracion = IngresarConfiguracion()
             algoritmo = AlgoritmoGenetico(configuracion)
             algoritmo.Run()
             algoritmo.Print()
             algoritmo.ExportToExcel()
             line = "n"  # input("Correr Nuevamente? [Y,N]: ")
             if line.lower() == "n":
-                exit = True
+                exit = True"""
+            if val == "1":
+                cuidadElegida = int(input("Ingrese Opcion : "))
+                Heuristica.GetRecorrerCuidad(cuidadElegida, cuidad)
+                Heuristica.PrintRecorrido()
+
+            input("Precione enter para continuar")
+            Initial()
+            val = input("Ingrese Opcion : ")
