@@ -12,7 +12,8 @@ class Heuristica:
         Heuristica.recorrido[23] = Heuristica.recorrido[0] = cuidadpartida
         cuidadactual = cuidadpartida
         DistanciaHelper.Visitadas[cuidadactual] = 1
-        for rec in range(len(capital) - 1):
+
+        for rec in range(1, len(capital) - 1):
             search = Heuristica.BuscarCiudad(cuidadactual)
             Heuristica.recorrido[rec] = search
             cuidadactual = Heuristica.recorrido[rec]
@@ -33,6 +34,10 @@ class Heuristica:
     @staticmethod
     def PrintRecorrido():
         reckm = 0
+        print("Indice" + ("Valor").center(30, " "))
+        for rec in range(len(Heuristica.recorrido)):
+            print(repr(DistanciaHelper.Capitales[Heuristica.recorrido[rec]].Indice) +
+                  repr(DistanciaHelper.Capitales[Heuristica.recorrido[rec]].Nombre).center(40, " "))
         for cap in range(len(DistanciaHelper.Capitales) - 1):
             reckm += int(DistanciaHelper.GetDistancia(DistanciaHelper.Capitales[Heuristica.recorrido[cap]], DistanciaHelper.Capitales[Heuristica.recorrido[cap + 1]]))
         print("El recorrido total es de {0} km", reckm)
