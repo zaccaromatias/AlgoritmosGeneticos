@@ -66,7 +66,7 @@ class Program:
             if line.lower() == "n":
                 exit = True"""
             if val == "1":
-                cuidadElegida = int(input("Ingrese Opcion : "))
+                cuidadElegida = int(input("Cuidad de partida : "))
                 Heuristica.GetRecorrerCuidad(cuidadElegida, cuidad)
                 Heuristica.PrintRecorrido()
 
