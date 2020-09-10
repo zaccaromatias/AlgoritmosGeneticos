@@ -9,6 +9,7 @@ from openpyxl import load_workbook
 class DistanciaHelper:
     TablaDistancias = None
     Capitales = []
+    """Arreglo para ver que ciudad que fue visitada o no donde 0 es No visitaday  1 es Visitada"""
     Visitadas = np.arange(23)
     @staticmethod
     def LoadTablaDistanicaYCapitales():
@@ -31,15 +32,16 @@ class DistanciaHelper:
     def GetDistancia(capitalOrigen: Capital,capitalDestino :Capital) -> int:
         return DistanciaHelper.TablaDistancias[capitalOrigen.Indice, capitalDestino.Indice]
 
+    """Devolucion de todas las ciudades"""
     @staticmethod
     def GetAllCuidad(capital:Capital):
         print("Indice"+("Valor").center(30, " "))
         for cap in capital:
             print(repr(cap.Indice) + repr(cap.Nombre).center(40, " "))
 
+    """Funcion que da pie a la inizalicion de las ciudades"""
     @staticmethod
-    def InicialCuidadVisitado(capital: Capital):
-        print("Indice" + ("Valor").center(30, " "))
+    def InicialCuidadVisitada(capital: Capital):
         for cap in range(len(capital) - 1):
             DistanciaHelper.Visitadas[cap] = 0
 

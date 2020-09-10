@@ -52,7 +52,7 @@ class Program:
         DistanciaHelper.LoadTablaDistanicaYCapitales()
         cuidad = DistanciaHelper.Capitales
         DistanciaHelper.GetAllCuidad(cuidad)
-        DistanciaHelper.InicialCuidadVisitado(cuidad)
+        DistanciaHelper.InicialCuidadVisitada(cuidad)
         print()
         Initial()
         val = input("Ingrese Opcion : ")
@@ -65,10 +65,16 @@ class Program:
             line = "n"  # input("Correr Nuevamente? [Y,N]: ")
             if line.lower() == "n":
                 exit = True"""
+            cuidadElegida = 0
             if val == "1":
                 cuidadElegida = int(input("Cuidad de partida : "))
+                if cuidadElegida < 0 or cuidadElegida > 23:
+                    print("Vuelve a eligir una capital que esta dentro de las capitales")
+                    return True
                 Heuristica.GetRecorrerCuidad(cuidadElegida, cuidad)
                 Heuristica.PrintRecorrido()
+            elif val == "2":
+                Heuristica.GetOptimo(cuidad)
 
             input("Precione enter para continuar")
             Initial()
