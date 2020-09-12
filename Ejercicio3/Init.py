@@ -4,7 +4,6 @@
 from Ejercicio3.Program import Program
 from Ejercicio3.GUI import GUI
 
-program = Program()
-program.Run()
+Program.Run()
 # gui = GUI()
 # gui.start()
