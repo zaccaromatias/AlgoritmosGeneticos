@@ -1,5 +1,5 @@
 # Importamos las funciones para obtener numeros aleatorios
-from random import randint, uniform, random
+from random import randint, uniform, random, shuffle
 # Para el manejo de la ruta de archivo
 from path import Path
 import os
@@ -8,10 +8,12 @@ import os
 import datetime
 import xlsxwriter
 
+from Ejercicio3 import DistanciaHelper
 from Ejercicio3.Cromosoma import Cromosoma
 from Ejercicio3.Crossover import Crossover
 from Ejercicio3.Mutacion import Mutacion
 from Ejercicio3.Poblacion import Poblacion
+from Ejercicio3.DistanciaHelper import DistanciaHelper
 
 
 # Logica del crossover
@@ -70,7 +72,7 @@ def FuncionFitness(poblacionInicial: Poblacion, cromosoma: Cromosoma):
 # Clase principal de nuestro programa
 class AlgoritmoGenetico:
     # Cantidad de genes empleado para la creacion de la poblacion inicial
-    dominioFinal = 30
+    dominioFinal = 50
 
     # Iniciacion de variables, recive el objeto configuracion que contiene la paremetrizacion de nuestro programa
     def __init__(self, configuracion):
@@ -78,8 +80,8 @@ class AlgoritmoGenetico:
         self.Poblaciones = []
         self.PoblacionActual = []
 
-    # Metodo principal que realiza las iteraciones del programa
     def Run(self):
+        """Metodo principal que realiza las iteraciones del programa"""
         for i in range(self.Configuracion.Iteraciones):
             if i == 0:
                 # Siendo la primera iteracion genera la poblacion inicial
@@ -96,23 +98,25 @@ class AlgoritmoGenetico:
             # Variante para una mayor diversidad genetica - agregado extra solo para comparar resultados
             if self.Configuracion.DiversidadGenetica:
                 self.DiversidadGenetica(nuevaPoblacion)
-            nuevaPoblacion = self.Seleccionar(nuevaPoblacion)
+            nuevaPoblacion = self.AplicarSeleccionRuedadeRuleta(nuevaPoblacion)
             nuevaPoblacion = self.EvaluarCrossover(nuevaPoblacion)
             self.EvaluarMutacion(nuevaPoblacion)
             self.Poblaciones.append(nuevaPoblacion)
 
-    # Genera la poblacion inicial generando cromosomas con valores binarios totalmente aleatorios
     def GetPoblacionInicial(self) -> Poblacion:
+        """Crea la población inicial generando cromosomas con valores binarios totalmente aleatorios"""
         poblacion = Poblacion()
         for i in range(self.Configuracion.CantidadPoblacionInicial):
-            numeroRandom = ""
-            for j in range(self.dominioFinal):
-                numeroRandom += str(randint(0, 1))
-            poblacion.Cromosomas.append(Cromosoma(numeroRandom))
+            c = DistanciaHelper.Capitales.copy()
+            shuffle(c)
+            # Si se eligió una ciudad inicial, se asegura de que esta esté al principio del array
+            if self.Configuracion.CiudadInicial is not None:
+                c.insert(0, c.pop(self.Configuracion.CiudadInicial))
+            poblacion.Cromosomas.append(Cromosoma(c))
         return poblacion
 
-    # Metodo extra para generar una mayor diversidad genetica
     def DiversidadGenetica(self, poblacionInicial: Poblacion):
+        """Metodo extra para generar una mayor diversidad genética"""
         similares = list(filter(lambda c: 0.105 >= FuncionFitness(poblacionInicial, c) > 0.09,
                                 poblacionInicial.Cromosomas))
         if len(similares) >= 6:
@@ -126,20 +130,15 @@ class AlgoritmoGenetico:
                         list1[numeroBit] = '0'
                     cr.Valor = ''.join(list1)
 
-    # Llama a aplicar seleccion ruleta
-    def Seleccionar(self, poblacionInicial: Poblacion) -> Poblacion:
-        return self.AplicarSeleccionRuedadeRuleta(poblacionInicial)
-
-    # Logica de seleccion de cromosomas a traves del metodo de la ruleta
-    # Segun el fitnes de cada cromosomas le seteamos los valores Minimos y maximos de la porcion que ocuparian
-    # (entre 0 y 1) acumulamos
-    # Seleccionamos un numero decimal aleatorio entre 0 y 1 y verificamos a que cromosoma corresponde segun su porcion
-    # Asi hasta completar poblacion
     def AplicarSeleccionRuedadeRuleta(self, poblacionInicial: Poblacion) -> Poblacion:
+        """Lógica de selección de cromosomas a través del método de la ruleta"""
         porciones = []
         nuevaPoblacion = Poblacion()
-
-        elite = list(filter(lambda c: c.EsElite == True, poblacionInicial.Cromosomas))
+        # Segun el fitnes de cada cromosomas le seteamos los valores Minimos y maximos de la porcion que ocuparian
+        # (entre 0 y 1) acumulamos
+        # Seleccionamos un numero decimal aleatorio entre 0 y 1 y verificamos a que cromosoma corresponde segun su porcion
+        # Asi hasta completar poblacion
+        elite = list(filter(lambda c: c.EsElite is True, poblacionInicial.Cromosomas))
         for cromosomaElite in elite:
             nuevaPoblacion.Cromosomas.append(cromosomaElite.Clone())
 

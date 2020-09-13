@@ -1,9 +1,10 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from Ejercicio3.DistanciaHelper import DistanciaHelper
 
 
 class Heuristica:
-    # CuidadElijida = None <---- No vi que se usa en ningún lado. Falta implementar o es código residual?
+    # CuidadElijida = None <---- No vi que se use en ningún lado. Falta implementar o es código residual?
     # Distancia = np.array([23, 23])
     # """Lista de índices de todas las capitales""" <------ Hace falta esto cuando existe DistanciaHelper.Capitales?
     # Lo comenté también porque vi que no se usaba en ningún lado
@@ -75,3 +76,7 @@ class Heuristica:
             reckm += int(DistanciaHelper.GetDistancia(DistanciaHelper.Capitales[Heuristica.recorrido[cap]],
                                                       DistanciaHelper.Capitales[Heuristica.recorrido[cap + 1]]))
         print("La distancia total recorrida es de " + repr(reckm) + " km")
+
+    @staticmethod
+    def DibujarMapa():
+        """Traza el recorrido en un mapa de Argentina"""

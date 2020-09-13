@@ -13,7 +13,7 @@ def IngresarConfiguracion() -> Configuracion:
     """Ingreso de parámetros para el AG"""
     porcentajeCrossOver = float(input("Porcentaje Crossover (float): "))
     porcentajeMutacion = float(input("Porcentaje Mutacion (float): "))
-    cantidadInicialPoblacion = int(input("Cantidad Inicial Poblacion (int): "))
+    cantidadInicialPoblacion = int(input("Ciudad Inicial (int o null): "))
     iteraciones = int(input("Cantidad Iteraciones (int): "))
     diversidadBool = input("Diversidad genética? (1-Sí/otro-No): ")
     if diversidadBool == "1":

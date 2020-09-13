@@ -4,10 +4,10 @@ from Ejercicio3.PorcionRuleta import PorcionRuleta
 # Representa a un cromosoma con su valor, si es marcado como elite
 # y la porcion de ruleta que ocuparia en una poblacion y su fitness
 class Cromosoma:
-    def __init__(self):
+    def __init__(self, c: list):
         self.EsElite = False
         self.PorcionRuleta = PorcionRuleta()
-        self.Ciudades=[]
+        self.Ciudades = c.copy()
 
         # Resetea valores
 
