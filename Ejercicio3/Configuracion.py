@@ -6,7 +6,7 @@ class Configuracion:
         self.ProbabilidadMutacion = 0.05  # probabilidadMutacion
         self.ProbabilidadMutacionOriginal = 0.05  # probabilidadMutacion
         self.CiudadInicial = ciudadInicial
-        self.CantidadPoblacionInicial = 50
+        self.NumeroCromosomasPoblacion = 50
         self.Iteraciones = 200  # iteraciones
         self.Elite = False  # elite
         self.DiversidadGenetica = False  # diversidadGenetica

@@ -26,7 +26,7 @@ class Cromosoma:
     # Devuelve una instancia nueva pero con mismos valores
     # Para evitar valores por referencia
     def Clone(self):
-        cromosoma = Cromosoma(self.Valor)
+        cromosoma = Cromosoma(self.Ciudades)
         cromosoma.EsElite = self.EsElite
         cromosoma.PorcionRuleta = self.PorcionRuleta
         cromosoma.Ciudades = self.Ciudades

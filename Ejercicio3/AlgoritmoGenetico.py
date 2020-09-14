@@ -56,24 +56,21 @@ def AplicarMutacion(poblacion: Poblacion, cromosoma: Cromosoma):
     poblacion.Mutaciones.append(mutacion)
 
 
-# Esta es nuestra funcion objetivo dada por el enunciado
-# int(c.Valor,2) convierte nuestro string binario a un numero entero
-def FuncionObjetivo(c: Cromosoma):
-    return pow(int(c.Valor, 2) / (pow(2, 30) - 1), 2)
+def DistanciaRecorrida(c: Cromosoma):
+    """Devuelve la distancia total recorrida en el trayecto de un cromosoma determinado"""
+    dr = 0
+    for i in range(len(c.Ciudades) - 1):
+        dr += DistanciaHelper.GetDistancia(c.Ciudades[i], c.Ciudades[i + 1])
+    dr += DistanciaHelper.GetDistancia(c.Ciudades[len(c.Ciudades) - 1], c.Ciudades[0])
+    return dr
 
 
-# Forma de calcular el fitness de cada cromosoma
-# Funcion objetiva de dicho cromosoma sobre la suma la funcion objetivo de cada cromosoma de la poblacion
-def FuncionFitness(poblacionInicial: Poblacion, cromosoma: Cromosoma):
-    return FuncionObjetivo(cromosoma) / sum(
-        FuncionObjetivo(cr) for cr in poblacionInicial.Cromosomas)
+def FuncionFitness(p: Poblacion, cromosoma: Cromosoma):
+    """Calcula y devuelve el fitness de un cromosoma determinado (1/Distancia)"""
+    return 1 / DistanciaRecorrida(cromosoma)
 
 
-# Clase principal de nuestro programa
 class AlgoritmoGenetico:
-    # Cantidad de genes empleado para la creacion de la poblacion inicial
-    dominioFinal = 50
-
     # Iniciacion de variables, recive el objeto configuracion que contiene la paremetrizacion de nuestro programa
     def __init__(self, configuracion):
         self.Configuracion = configuracion
@@ -106,11 +103,11 @@ class AlgoritmoGenetico:
     def GetPoblacionInicial(self) -> Poblacion:
         """Crea la población inicial generando cromosomas con valores binarios totalmente aleatorios"""
         poblacion = Poblacion()
-        for i in range(self.Configuracion.CantidadPoblacionInicial):
+        for i in range(self.Configuracion.NumeroCromosomasPoblacion):
             c = DistanciaHelper.Capitales.copy()
             shuffle(c)
             # Si se eligió una ciudad inicial, se asegura de que esta esté al principio del array
-            if self.Configuracion.CiudadInicial is not None:
+            if self.Configuracion.CiudadInicial is not int:
                 c.insert(0, c.pop(self.Configuracion.CiudadInicial))
             poblacion.Cromosomas.append(Cromosoma(c))
         return poblacion
@@ -152,7 +149,7 @@ class AlgoritmoGenetico:
             cromosoma.PorcionRuleta.ValorMaximo = valorMaximo
             porciones.append(cromosoma.PorcionRuleta)
 
-        for i in range(self.Configuracion.CantidadPoblacionInicial - len(elite)):
+        for i in range(self.Configuracion.NumeroCromosomasPoblacion - len(elite)):
             numero = uniform(0, porciones[len(porciones) - 1].ValorMaximo)
             lista = list(filter(
                 lambda c: c.PorcionRuleta.ValorMinimo <= numero < c.PorcionRuleta.ValorMaximo,
@@ -160,14 +157,14 @@ class AlgoritmoGenetico:
             nuevaPoblacion.Cromosomas.append(lista[0].Clone())
         return nuevaPoblacion
 
-    # Logica para marcar los mejores 2 cromosomas segun su fitnes
-    # Recorre dos veces buscando el mayor fitnes entre los Cromosomas  que no son elites
+    # Logica para marcar los mejores 2 cromosomas segun su fitness
+    # Recorre dos veces buscando el mayor fitness entre los Cromosomas que no son elites
     # Luego el cromosoma correspondiente para marcarlo como elite
     def Elite(self, poblacionInicial: Poblacion) -> Poblacion:
         countTrue = 0
         while countTrue < 2:
             elite = 0
-            noElite = list(filter(lambda cd: cd.EsElite == False, poblacionInicial.Cromosomas))
+            noElite = list(filter(lambda cd: cd.EsElite is False, poblacionInicial.Cromosomas))
             for cromosoma in noElite:
                 if FuncionFitness(poblacionInicial, cromosoma) > elite:
                     elite = FuncionFitness(poblacionInicial, cromosoma)

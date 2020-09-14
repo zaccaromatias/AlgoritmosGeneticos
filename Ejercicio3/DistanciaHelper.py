@@ -35,7 +35,7 @@ class DistanciaHelper:
     @staticmethod
     def GetDistancia(capitalOrigen: Capital, capitalDestino: Capital) -> int:
         """Devuelve la distancia entre dos ciudades"""
-        return DistanciaHelper.TablaDistancias[capitalOrigen.Indice, capitalDestino.Indice]
+        return int(DistanciaHelper.TablaDistancias[capitalOrigen.Indice, capitalDestino.Indice])
 
     @staticmethod
     def GetAllCiudades():
