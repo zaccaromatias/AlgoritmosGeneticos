@@ -72,11 +72,11 @@ class Program:
             elif opt == "2":
                 Heuristica.GetOptimo()
             elif opt == "3":
-                """configuracion = IngresarConfiguracion()
+                configuracion = IngresarConfiguracion()
                 algoritmo = AlgoritmoGenetico(configuracion)
                 algoritmo.Run()
                 algoritmo.Print()
-                algoritmo.ExportToExcel()"""
+                algoritmo.ExportToExcel()
             elif opt == "5":
                 break
             input("Presione Enter para continuar...")
