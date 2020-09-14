@@ -1,4 +1,6 @@
 openpyxl
-path
+Path
 pandas
 matplotlib
+xlsxwriter
+

@@ -105,10 +105,14 @@ class AlgoritmoGenetico:
         poblacion = Poblacion()
         for i in range(self.Configuracion.NumeroCromosomasPoblacion):
             c = DistanciaHelper.Capitales.copy()
-            shuffle(c)
             # Si se eligió una ciudad inicial, se asegura de que esta esté al principio del array
             if self.Configuracion.CiudadInicial is not int:
-                c.insert(0, c.pop(self.Configuracion.CiudadInicial))
+                ciudadInicial = DistanciaHelper.Capitales[self.Configuracion.CiudadInicial]
+                c.remove(ciudadInicial)
+                shuffle(c)
+                c.insert(0, ciudadInicial)
+            else:
+                shuffle(c)
             poblacion.Cromosomas.append(Cromosoma(c))
         return poblacion
 
