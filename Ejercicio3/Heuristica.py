@@ -4,24 +4,17 @@ from Ejercicio3.DistanciaHelper import DistanciaHelper
 
 
 class Heuristica:
-    # CuidadElijida = None <---- No vi que se use en ningún lado. Falta implementar o es código residual?
-    # Distancia = np.array([23, 23])
-    # """Lista de índices de todas las capitales""" <------ Hace falta esto cuando existe DistanciaHelper.Capitales?
-    # Lo comenté también porque vi que no se usaba en ningún lado
-
-    recorrido = np.arange(24)
-    """Lista de índices de capitales que ya están en el recorrido"""
 
     @staticmethod
     def GetRecorrerCuidad(cuidadpartida: int):
         """Calcula el recorrido con la ciudad elegida como inicial"""
-        Heuristica.recorrido[23] = Heuristica.recorrido[0] = cuidadpartida
+        DistanciaHelper.recorrido[23] = DistanciaHelper.recorrido[0] = cuidadpartida
         cuidadactual = cuidadpartida
         DistanciaHelper.Visitadas[cuidadactual] = 1
 
         # Busca la siguiente ciudad para agregar a la lista recorrido siendo la elegida la más cercana
         for rec in range(1, len(DistanciaHelper.Capitales) - 1):
-            cuidadactual = Heuristica.recorrido[rec] = Heuristica.BuscarCiudad(cuidadactual)
+            cuidadactual = DistanciaHelper.recorrido[rec] = Heuristica.BuscarCiudad(cuidadactual)
             DistanciaHelper.Visitadas[cuidadactual] = 1
 
     @staticmethod
@@ -52,8 +45,8 @@ class Heuristica:
             capacum = 0
             """Cantidad de KM recorridos"""
             for km in range(len(DistanciaHelper.Capitales) - 1):
-                capacum += int(DistanciaHelper.GetDistancia(DistanciaHelper.Capitales[Heuristica.recorrido[km]],
-                                                            DistanciaHelper.Capitales[Heuristica.recorrido[km + 1]]))
+                capacum += int(DistanciaHelper.GetDistancia(DistanciaHelper.Capitales[DistanciaHelper.recorrido[km]],
+                                                            DistanciaHelper.Capitales[DistanciaHelper.recorrido[km + 1]]))
             # Compara para buscar el recorrido óptimo
             if capacum <= opt:
                 opt = capacum
@@ -69,12 +62,12 @@ class Heuristica:
         """Muestra el recorrido en pantalla junto con la distancia total calculada en KM"""
         reckm = 0
         print("Indice" + "Ciudad".center(30, " "))
-        for rec in range(len(Heuristica.recorrido)):
-            print(repr(DistanciaHelper.Capitales[Heuristica.recorrido[rec]].Indice) +
-                  repr(DistanciaHelper.Capitales[Heuristica.recorrido[rec]].Nombre).center(40, " "))
-        for cap in range(len(DistanciaHelper.Capitales) - 1):
-            reckm += int(DistanciaHelper.GetDistancia(DistanciaHelper.Capitales[Heuristica.recorrido[cap]],
-                                                      DistanciaHelper.Capitales[Heuristica.recorrido[cap + 1]]))
+        for rec in range(len(DistanciaHelper.recorrido)):
+            print(repr(DistanciaHelper.Capitales[DistanciaHelper.recorrido[rec]].Indice) +
+                  repr(DistanciaHelper.Capitales[DistanciaHelper.recorrido[rec]].Nombre).center(40, " "))
+        for cap in range(len(DistanciaHelper.recorrido) - 1):
+            reckm += int(DistanciaHelper.GetDistancia(DistanciaHelper.Capitales[DistanciaHelper.recorrido[cap]],
+                                                      DistanciaHelper.Capitales[DistanciaHelper.recorrido[cap + 1]]))
         print("La distancia total recorrida es de " + repr(reckm) + " km")
 
     @staticmethod

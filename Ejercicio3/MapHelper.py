@@ -3,7 +3,6 @@ from itertools import islice
 from openpyxl import load_workbook
 from pandas import DataFrame
 from Ejercicio3.DistanciaHelper import DistanciaHelper
-from Ejercicio3.Heuristica import Heuristica
 
 
 # Esto es un ejemplo de prueba no mas. REFACTORIZAR
@@ -26,9 +25,9 @@ class MapHelper:
         fig , ax = plt.subplots(1 ,figsize = (10,8))
         ax.set_title('Mapa Argentina', fontsize = 25)
         indexrecorrido = 0
-        for value in range(len(Heuristica.recorrido)):
-            ciu = DistanciaHelper.Capitales[Heuristica.recorrido[value]]
-            search = list(filter(lambda cp: cp[0] == ciu.Nombre, list(df.iterrows())))
+        for value in range(len(DistanciaHelper.recorrido)):
+            capital = DistanciaHelper.Capitales[DistanciaHelper.recorrido[value]]
+            search = list(filter(lambda cp: cp[0] == capital.Nombre, list(df.iterrows())))
             valname = search[0]
             plt.scatter(valname[1].Lat, valname[1].Long, s=100)
             plt.annotate(valname[0], (valname[1].Lat, valname[1].Long))
@@ -36,6 +35,7 @@ class MapHelper:
                 x_values = [anterior[0], valname[1].Lat]
                 y_values = [anterior[1], valname[1].Long]
                 line = ax.plot(x_values, y_values, label=valname[0],linestyle='--')
+                ax.grid(alpha = 0.6)
                 line[0].set_linewidth(1)
                 line[0].bins = 1
                 line[0].set_drawstyle("default")
@@ -45,5 +45,7 @@ class MapHelper:
                 anterior = [valname[1].Lat, valname[1].Long]
             indice += 1
             #ax.axis('off')
-        plt.legend(fontsize = 8)
+        plt.legend(fontsize = 8,loc="best")
+        ax.set_xlabel('Longitud')
+        ax.set_ylabel('Latitud')
         plt.show()

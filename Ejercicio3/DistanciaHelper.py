@@ -13,6 +13,8 @@ class DistanciaHelper:
     """Arreglo que contiene datos de todas las capitales (objetos Capital)"""
     Visitadas = np.arange(24)
     """Arreglo para ver que ciudad que fue visitada (==1) o no (==0)"""
+    recorrido = np.arange(24)
+    """Lista de índices de capitales que ya están en el recorrido"""
 
     @staticmethod
     def LoadTablaDistanciaYCapitales():
