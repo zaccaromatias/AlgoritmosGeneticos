@@ -4,8 +4,6 @@ from openpyxl import load_workbook
 from pandas import DataFrame
 from Ejercicio3.DistanciaHelper import DistanciaHelper
 
-
-# Esto es un ejemplo de prueba no mas. REFACTORIZAR
 # Leee el valor de las coordenadas de la segunda hoja del excel
 # Y agrega todos los puntos  uniendolo con el anteior
 class MapHelper:
@@ -24,9 +22,10 @@ class MapHelper:
         anterior = None
         fig , ax = plt.subplots(1 ,figsize = (10,8))
         ax.set_title('Mapa Argentina', fontsize = 25)
-        indexrecorrido = 0
+
         for value in range(len(DistanciaHelper.recorrido)):
             capital = DistanciaHelper.Capitales[DistanciaHelper.recorrido[value]]
+            #Filtrar por nombre de capital para encontrar la latitud y la longitud de las capitales recorridas
             search = list(filter(lambda cp: cp[0] == capital.Nombre, list(df.iterrows())))
             valname = search[0]
             plt.scatter(valname[1].Lat, valname[1].Long, s=100)
