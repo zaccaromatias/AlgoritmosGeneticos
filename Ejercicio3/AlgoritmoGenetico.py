@@ -56,18 +56,13 @@ def AplicarMutacion(poblacion: Poblacion, cromosoma: Cromosoma):
     poblacion.Mutaciones.append(mutacion)
 
 
-def DistanciaRecorrida(c: Cromosoma):
-    """Devuelve la distancia total recorrida en el trayecto de un cromosoma determinado"""
-    dr = 0
-    for i in range(len(c.Ciudades) - 1):
-        dr += DistanciaHelper.GetDistancia(c.Ciudades[i], c.Ciudades[i + 1])
-    dr += DistanciaHelper.GetDistancia(c.Ciudades[len(c.Ciudades) - 1], c.Ciudades[0])
-    return dr
-
-
 def FuncionFitness(p: Poblacion, cromosoma: Cromosoma):
     """Calcula y devuelve el fitness de un cromosoma determinado (1/Distancia)"""
-    return 1 / DistanciaRecorrida(cromosoma)
+    return 1 / FuncionObjetivo(cromosoma)
+
+
+def FuncionObjetivo(cromosoma: Cromosoma):
+    return cromosoma.Distancia()
 
 
 class AlgoritmoGenetico:
@@ -166,16 +161,12 @@ class AlgoritmoGenetico:
     # Luego el cromosoma correspondiente para marcarlo como elite
     def Elite(self, poblacionInicial: Poblacion) -> Poblacion:
         countTrue = 0
-        while countTrue < 2:
-            elite = 0
-            noElite = list(filter(lambda cd: cd.EsElite is False, poblacionInicial.Cromosomas))
-            for cromosoma in noElite:
-                if FuncionFitness(poblacionInicial, cromosoma) > elite:
-                    elite = FuncionFitness(poblacionInicial, cromosoma)
-            for cromosoma in noElite:
-                if FuncionFitness(poblacionInicial, cromosoma) == elite and countTrue < 2:
-                    Cromosoma.Elite(cromosoma)
-                    countTrue += 1
+        while countTrue < self.Configuracion.CantidadElites:
+            result = min([c.Distancia() for c in filter(lambda cd: cd.EsElite is False, poblacionInicial.Cromosomas)])
+            best = \
+            list(filter(lambda cd: cd.EsElite is False and cd.Distancia() == result, poblacionInicial.Cromosomas))[0]
+            best.Elite()
+            countTrue += 1
         return poblacionInicial
 
     # Recorre los cromosomas de la poblacion
@@ -277,7 +268,7 @@ class AlgoritmoGenetico:
         pathExcels = "Excels/" + name
         workbook = xlsxwriter.Workbook(pathExcels)
         bold = workbook.add_format({'bold': 1})
-        #Genera los sheet con cada uno de los datos
+        # Genera los sheet con cada uno de los datos
         self.CargarSheetDeResultados(workbook, dataResultados, bold)
         self.CargarSheetDeIteraciones(workbook, dataIteraciones, bold)
         self.CargarSheetCrossovers(workbook, dataCrosovers, bold)

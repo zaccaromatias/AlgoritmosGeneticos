@@ -1,3 +1,4 @@
+from Ejercicio3.DistanciaHelper import DistanciaHelper
 from Ejercicio3.PorcionRuleta import PorcionRuleta
 
 
@@ -18,6 +19,13 @@ class Cromosoma:
     # Marca cromosoma que es elite
     def Elite(self):
         self.EsElite = True
+
+    def Distancia(self):
+        distanciaRecorrida = 0
+        for i in range(len(self.Ciudades) - 1):
+            distanciaRecorrida += DistanciaHelper.GetDistancia(self.Ciudades[i], self.Ciudades[i + 1])
+        distanciaRecorrida += DistanciaHelper.GetDistancia(self.Ciudades[len(self.Ciudades) - 1], self.Ciudades[0])
+        return distanciaRecorrida
 
     # cambia valor del cromosoma
     def Mutar(self):

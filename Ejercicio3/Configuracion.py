@@ -8,5 +8,6 @@ class Configuracion:
         self.CiudadInicial = ciudadInicial
         self.NumeroCromosomasPoblacion = 50
         self.Iteraciones = 200  # iteraciones
-        self.Elite = False  # elite
+        self.Elite = True  # elite
         self.DiversidadGenetica = False  # diversidadGenetica
+        self.CantidadElites = 2
