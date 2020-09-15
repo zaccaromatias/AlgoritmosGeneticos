@@ -220,10 +220,10 @@ class AlgoritmoGenetico:
     # y en caso de los cromosomas Elites los pasa directamente
     def EvaluarCrossover(self, poblacionInicial: Poblacion) -> Poblacion:
         nuevaPoblacion = Poblacion()
-        elite = list(filter(lambda c: c.EsElite == True, poblacionInicial.Cromosomas))
+        elite = list(filter(lambda c: c.EsElite is True, poblacionInicial.Cromosomas))
         for i in elite:
             nuevaPoblacion.Cromosomas.append(i.Clone())
-        while len(nuevaPoblacion.Cromosomas) < DistanciaHelper.Capitales:
+        while len(nuevaPoblacion.Cromosomas) < self.Configuracion.NumeroCromosomasPoblacion:
             cromosoma1: Cromosoma = SeleccionarCromosomaAlAzar(poblacionInicial.Cromosomas).Clone()
             cromosoma2: Cromosoma = SeleccionarCromosomaAlAzar(poblacionInicial.Cromosomas).Clone()
             if self.AplicaCrossover():
