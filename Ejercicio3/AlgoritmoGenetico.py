@@ -9,6 +9,7 @@ import datetime
 import xlsxwriter
 
 from Ejercicio3 import DistanciaHelper
+from Ejercicio3 import Configuracion
 from Ejercicio3.Cromosoma import Cromosoma
 from Ejercicio3.Crossover import Crossover
 from Ejercicio3.Mutacion import Mutacion
@@ -69,32 +70,34 @@ def AplicarCrossoverCiclico(padre1: Cromosoma, padre2: Cromosoma):
     return Cromosoma(hijo1), Cromosoma(hijo2), len(ciclos)
 
 
-# De la lista de cromosomas que recive devuelve uno tomado al azar
-# Simplemente toma un valor entero al azar y devuelve el objeto en ese indice
 def SeleccionarCromosomaAlAzar(cromosomas: []) -> Cromosoma:
+    """De la lista de cromosomas que recibe, devuelve uno tomado al azar"""
     numero = randint(0, len(cromosomas) - 1)
     return cromosomas[numero]
 
 
 # Logica de la mutacion
-# Recive un objeto poblacion al cual agregara la mutacion y un Cromosoma el cual es el que va a mutar
+# Recibe un objeto poblacion al cual agregara la mutacion y un Cromosoma el cual es el que va a mutar
 # Simplemente elige un numero entero al azar entre 0 y 30 e invierte el valor de dicho valor en ese indice
-def AplicarMutacion(poblacion: Poblacion, cromosoma: Cromosoma):
+def AdjointMutacion(cfg: Configuracion, cromosoma: Cromosoma):
+    """Cambia de posición dos ciudades entre sí en la lista de ciudades del cromosoma. Si se ha elegido una ciudad
+        inicial, no toca la que se encuentra en el índice 0."""
     mutacion = Mutacion(cromosoma)
-    numeroBit = randint(0, len(cromosoma.Ciudades) - 1)
-    list1 = list(cromosoma.Valor)
-    if list1[numeroBit] == '0':
-        list1[numeroBit] = '1'
+    valorMinimoRandom = 0
+    if cfg.CiudadInicial is not None:
+        valorMinimoRandom += 1
+    indiceMutacion = randint(valorMinimoRandom, len(cromosoma.Ciudades) - 1)
+    if indiceMutacion == len(cromosoma.Ciudades)-1:
+        indiceMutacion2 = indiceMutacion - 1
     else:
-        list1[numeroBit] = '0'
-    mutacion.Mutante.Valor = ''.join(list1)
-    mutacion.IndiceBitCambiado = numeroBit
-    cromosoma.Valor = ''.join(list1)
-    poblacion.Mutaciones.append(mutacion)
-# Esta es nuestra funcion objetivo dada por el enunciado
-# int(c.Valor,2) convierte nuestro string binario a un numero entero
-def FuncionObjetivo(c: Cromosoma):
-    return pow(int(c.Valor, 2) / (pow(2, 30) - 1), 2)
+        indiceMutacion2 = indiceMutacion + 1
+    a, b = cromosoma.Ciudades[indiceMutacion], cromosoma.Ciudades[indiceMutacion2]
+    cromosoma.Ciudades[b], cromosoma.Ciudades[a] = cromosoma.Ciudades[a], cromosoma.Ciudades[b]
+    # mutacion.Mutante.Valor = ''.join(list1)
+    # mutacion.IndiceCiudadesCambiadas = numeroBit
+    # cromosoma.Ciudades = ''.join(list1)
+    # poblacion.Mutaciones.append(mutacion)
+
 
 def FuncionFitness(p: Poblacion, cromosoma: Cromosoma):
     """Calcula y devuelve el fitness de un cromosoma determinado (1/Distancia)"""
@@ -251,10 +254,10 @@ class AlgoritmoGenetico:
 
     # Recorre los cromosomas no elites de una poblacion y evalua si debe aplciar mutacion
     def EvaluarMutacion(self, poblacionInicial: Poblacion):
-        cromosomasNoElites = list(filter(lambda c: c.EsElite == False, poblacionInicial.Cromosomas))
+        cromosomasNoElites = list(filter(lambda c: c.EsElite is False, poblacionInicial.Cromosomas))
         for cromosoma in cromosomasNoElites:
             if self.AplicaMutacion():
-                AplicarMutacion(poblacionInicial, cromosoma)
+                AdjointMutacion(self.Configuracion, cromosoma)
 
     # Muestra en pantalla los resultados de las iteraciones y el maximo obtenido
     def Print(self):
