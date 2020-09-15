@@ -16,20 +16,57 @@ from Ejercicio3.Poblacion import Poblacion
 from Ejercicio3.DistanciaHelper import DistanciaHelper
 
 
-# Logica del crossover
-# Recive dos cromosomas que son los que va a cruzar
-# Devuelve una tupla de 3 valores donde los dos primeros son los cromosomas hijos de la cruza y el tercero es un valor
-# entero del punto donde se corto
-# Dicho valor de corte es un entero al azar entre 0 y 30 (largo de nuestros cromosomas)
-def AplicarCrosOverDeTipoUnPunto(cromosoma1: Cromosoma, cromosoma2: Cromosoma):
-    unidades = randint(0, len(cromosoma1.Ciudades) - 1)
-    primeraParteBinario1 = cromosoma1.Ciudades[:unidades]
-    primeraParteBinario2 = cromosoma2.Ciudades[:unidades]
-    segundaParteBinario1 = cromosoma1.Ciudades[unidades:]
-    segundaParteBinario2 = cromosoma2.Ciudades[unidades:]
-    nuevoBinario1 = primeraParteBinario1 + segundaParteBinario2
-    nuevoBinario2 = primeraParteBinario2 + segundaParteBinario1
-    return Cromosoma(nuevoBinario1), Cromosoma(nuevoBinario2), unidades
+def AplicarCrossoverCiclico(padre1: Cromosoma, padre2: Cromosoma):
+    """Define los ciclos y luego aplica el crossover entre dos cromosomas padres.
+    Devuelve dos cromosomas hijos y la cantidad de ciclos"""
+
+    # Inicializo las listas que devuelve el método al final
+    ciclos = []
+    hijo1 = [0 for x in range(24)]
+    hijo2 = list.copy(hijo1)
+
+    # Este bucle recorre las capitales del primer padre en orden ascendente y revisa que ella no se encuentre en un
+    # ciclo ya existente para evitar agregar ciclos repetidos.
+    for i in range(len(padre1.Ciudades)):
+        nuevoCiclo = True
+        for k in range(len(ciclos)):
+            if len(ciclos) == 0:
+                break
+            for j in range(len(ciclos[k]) - 1):
+                if ciclos[k][j] == i:
+                    nuevoCiclo = False
+                    break
+
+        # Registro de un nuevo ciclo: Busca los lugares de las listas de ciudades en ambos cromosomas (comenzando por el
+        # primero) para encontrar el ciclo correspondiente a ellas.
+        if nuevoCiclo:
+            ciclo = []
+            indicePadre1 = i
+            ciclo.append(indicePadre1)
+            indicePadre2 = -1  # <- Valor dummy para poder entrar al bucle
+            while i != indicePadre2:
+                indicePadre2 = padre2.Ciudades.index(padre1.Ciudades[indicePadre1])
+                ciclo.append(indicePadre2)
+                if ciclo[len(ciclo) - 1] == ciclo[0]:
+                    ciclo.remove(ciclo[len(ciclo) - 1])  # <- Para que el primer elemento del ciclo no aparezca repetido
+                    break
+                indicePadre1 = indicePadre2
+            ciclos.append(ciclo)  # <- Se agrega el ciclo actual a la lista de ciclos
+
+    # Una vez completa la lista de ciclos, se procede al proceso de crossover donde se intercambian los genes para
+    # formar los nuevos cromosomas hijos. En el primer ciclo, el primer padre da sus genes al primer hijo y el segundo
+    # al segundo. En el segundo ciclo, el primer padre da sus genes al segundo hijo, y el segundo al primero. Y así
+    # sucesivamente.
+    for n in range(len(ciclos)):
+        for m in range(len(ciclos[n])):
+            if n % 2 == 0:
+                hijo1[ciclos[n][m]] = padre1.Ciudades[ciclos[n][m]]
+                hijo2[ciclos[n][m]] = padre2.Ciudades[ciclos[n][m]]
+            else:
+                hijo1[ciclos[n][m]] = padre2.Ciudades[ciclos[n][m]]
+                hijo2[ciclos[n][m]] = padre1.Ciudades[ciclos[n][m]]
+
+    return Cromosoma(hijo1), Cromosoma(hijo2), len(ciclos)
 
 
 # De la lista de cromosomas que recive devuelve uno tomado al azar
@@ -183,11 +220,11 @@ class AlgoritmoGenetico:
         elite = list(filter(lambda c: c.EsElite == True, poblacionInicial.Cromosomas))
         for i in elite:
             nuevaPoblacion.Cromosomas.append(i.Clone())
-        while len(nuevaPoblacion.Cromosomas) < self.Configuracion.CiudadInicial:
+        while len(nuevaPoblacion.Cromosomas) < DistanciaHelper.Capitales:
             cromosoma1: Cromosoma = SeleccionarCromosomaAlAzar(poblacionInicial.Cromosomas).Clone()
             cromosoma2: Cromosoma = SeleccionarCromosomaAlAzar(poblacionInicial.Cromosomas).Clone()
             if self.AplicaCrossover():
-                hijos = AplicarCrosOverDeTipoUnPunto(cromosoma1, cromosoma2)
+                hijos = AplicarCrossoverCiclico(cromosoma1, cromosoma2)
                 nuevaPoblacion.Cromosomas.append(hijos[0])
                 nuevaPoblacion.Cromosomas.append(hijos[1])
                 nuevaPoblacion.Crossovers.append(Crossover(cromosoma1, cromosoma2, hijos[0], hijos[1], hijos[2]))
