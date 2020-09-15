@@ -7,11 +7,12 @@ from Ejercicio3.AlgoritmoGenetico import AlgoritmoGenetico
 from Ejercicio3.Configuracion import Configuracion
 from Ejercicio3.DistanciaHelper import DistanciaHelper
 from Ejercicio3.Heuristica import Heuristica
+from Ejercicio3.MapHelper import  MapHelper
 
 
 def IngresarConfiguracion() -> Configuracion:
     """Ingreso de parámetros para el AG"""
-    porcentajeCrossOver = float(input("Porcentaje Crossover (float): "))
+    """porcentajeCrossOver = float(input("Porcentaje Crossover (float): "))
     porcentajeMutacion = float(input("Porcentaje Mutacion (float): "))
     cantidadInicialPoblacion = int(input("Ciudad Inicial (int o null): "))
     iteraciones = int(input("Cantidad Iteraciones (int): "))
@@ -24,7 +25,7 @@ def IngresarConfiguracion() -> Configuracion:
     if eliteBool == "1":
         elite = True
     else:
-        elite = False
+        elite = False"""
 
     # CÓDIGO PARA PRUEBA DE SISTEMA
     # printCrossovers = input("Imprimir Crossovers (bool): ")
@@ -35,9 +36,10 @@ def IngresarConfiguracion() -> Configuracion:
     # printMutacionesBool = False
     # if printMutaciones == "1" or printMutaciones == "True":
     #     printMutacionesBool = True
-
-    return Configuracion(porcentajeCrossOver, porcentajeMutacion, cantidadInicialPoblacion, iteraciones,
-                         elite, diversidadGenetica)
+    return Configuracion(10, 10, 9, 20,
+                         False, False)
+    """return Configuracion(porcentajeCrossOver, porcentajeMutacion, cantidadInicialPoblacion, iteraciones,
+                         elite, diversidadGenetica)"""
 
 
 def Initial():
@@ -69,14 +71,16 @@ class Program:
                 cuidadElegida = int(input("Ciudad de partida: "))
                 Heuristica.GetRecorrerCuidad(cuidadElegida)
                 Heuristica.PrintRecorrido()
+                MapHelper.DibujarMapa()
             elif opt == "2":
                 Heuristica.GetOptimo()
+                MapHelper.DibujarMapa()
             elif opt == "3":
                 configuracion = IngresarConfiguracion()
                 algoritmo = AlgoritmoGenetico(configuracion)
                 algoritmo.Run()
                 algoritmo.Print()
-                algoritmo.ExportToExcel()
+                """algoritmo.ExportToExcel()"""
             elif opt == "5":
                 break
             input("Presione Enter para continuar...")

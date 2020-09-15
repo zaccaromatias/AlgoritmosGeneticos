@@ -28,7 +28,7 @@ class Heuristica:
     def BuscarCiudad(actual):
         """Busca la ciudad mas cercana a la actual"""
         destino = 0
-        menor = 10000  # <---- valor dummy para empezar la búsqueda (no hay distancia que llegue o supere este valor)
+        menor = 10000
         for cap in range(len(DistanciaHelper.Capitales) - 1):
             # Revisa si cap ya no fue visitada
             if DistanciaHelper.Visitadas[cap] == 0:
@@ -43,8 +43,8 @@ class Heuristica:
     @staticmethod
     def GetOptimo():
         """Busca la ciudad inicial para que el recorrido sea el óptimo, lo calcula y lo muestra"""
-        opt = 10000  # Valor dummy
-        capini = 99  # Valor dummy
+        opt = 10000
+        capini = 99
         # Calcula los recorridos mínimos con cada capital como inicial
         for cap in range(len(DistanciaHelper.Capitales) - 1):
             DistanciaHelper.InicialCiudadVisitada()

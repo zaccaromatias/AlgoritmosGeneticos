@@ -22,11 +22,11 @@ from Ejercicio3.DistanciaHelper import DistanciaHelper
 # entero del punto donde se corto
 # Dicho valor de corte es un entero al azar entre 0 y 30 (largo de nuestros cromosomas)
 def AplicarCrosOverDeTipoUnPunto(cromosoma1: Cromosoma, cromosoma2: Cromosoma):
-    unidades = randint(0, len(cromosoma1.Valor) - 1)
-    primeraParteBinario1 = cromosoma1.Valor[:unidades]
-    primeraParteBinario2 = cromosoma2.Valor[:unidades]
-    segundaParteBinario1 = cromosoma1.Valor[unidades:]
-    segundaParteBinario2 = cromosoma2.Valor[unidades:]
+    unidades = randint(0, len(cromosoma1.Ciudades) - 1)
+    primeraParteBinario1 = cromosoma1.Ciudades[:unidades]
+    primeraParteBinario2 = cromosoma2.Ciudades[:unidades]
+    segundaParteBinario1 = cromosoma1.Ciudades[unidades:]
+    segundaParteBinario2 = cromosoma2.Ciudades[unidades:]
     nuevoBinario1 = primeraParteBinario1 + segundaParteBinario2
     nuevoBinario2 = primeraParteBinario2 + segundaParteBinario1
     return Cromosoma(nuevoBinario1), Cromosoma(nuevoBinario2), unidades
@@ -44,7 +44,7 @@ def SeleccionarCromosomaAlAzar(cromosomas: []) -> Cromosoma:
 # Simplemente elige un numero entero al azar entre 0 y 30 e invierte el valor de dicho valor en ese indice
 def AplicarMutacion(poblacion: Poblacion, cromosoma: Cromosoma):
     mutacion = Mutacion(cromosoma)
-    numeroBit = randint(0, len(cromosoma.Valor) - 1)
+    numeroBit = randint(0, len(cromosoma.Ciudades) - 1)
     list1 = list(cromosoma.Valor)
     if list1[numeroBit] == '0':
         list1[numeroBit] = '1'
@@ -54,7 +54,10 @@ def AplicarMutacion(poblacion: Poblacion, cromosoma: Cromosoma):
     mutacion.IndiceBitCambiado = numeroBit
     cromosoma.Valor = ''.join(list1)
     poblacion.Mutaciones.append(mutacion)
-
+# Esta es nuestra funcion objetivo dada por el enunciado
+# int(c.Valor,2) convierte nuestro string binario a un numero entero
+def FuncionObjetivo(c: Cromosoma):
+    return pow(int(c.Valor, 2) / (pow(2, 30) - 1), 2)
 
 def FuncionFitness(p: Poblacion, cromosoma: Cromosoma):
     """Calcula y devuelve el fitness de un cromosoma determinado (1/Distancia)"""
@@ -180,7 +183,7 @@ class AlgoritmoGenetico:
         elite = list(filter(lambda c: c.EsElite == True, poblacionInicial.Cromosomas))
         for i in elite:
             nuevaPoblacion.Cromosomas.append(i.Clone())
-        while len(nuevaPoblacion.Cromosomas) < self.Configuracion.CantidadPoblacionInicial:
+        while len(nuevaPoblacion.Cromosomas) < self.Configuracion.CiudadInicial:
             cromosoma1: Cromosoma = SeleccionarCromosomaAlAzar(poblacionInicial.Cromosomas).Clone()
             cromosoma2: Cromosoma = SeleccionarCromosomaAlAzar(poblacionInicial.Cromosomas).Clone()
             if self.AplicaCrossover():
