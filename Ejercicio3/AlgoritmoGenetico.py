@@ -9,7 +9,6 @@ import datetime
 import xlsxwriter
 
 from Ejercicio3 import DistanciaHelper
-from Ejercicio3 import Configuracion
 from Ejercicio3.Cromosoma import Cromosoma
 from Ejercicio3.Crossover import Crossover
 from Ejercicio3.Mutacion import Mutacion
@@ -76,23 +75,20 @@ def SeleccionarCromosomaAlAzar(cromosomas: []) -> Cromosoma:
     return cromosomas[numero]
 
 
-# Logica de la mutacion
-# Recibe un objeto poblacion al cual agregara la mutacion y un Cromosoma el cual es el que va a mutar
-# Simplemente elige un numero entero al azar entre 0 y 30 e invierte el valor de dicho valor en ese indice
-def AdjointMutacion(cfg: Configuracion, cromosoma: Cromosoma):
+def AdjointMutacion(cromosoma: Cromosoma):
     """Cambia de posición dos ciudades entre sí en la lista de ciudades del cromosoma. Si se ha elegido una ciudad
         inicial, no toca la que se encuentra en el índice 0."""
-    mutacion = Mutacion(cromosoma)
-    valorMinimoRandom = 0
-    if cfg.CiudadInicial is not None:
-        valorMinimoRandom += 1
-    indiceMutacion = randint(valorMinimoRandom, len(cromosoma.Ciudades) - 1)
+    # mutacion = Mutacion(cromosoma)
+    indiceMutacion = randint(0, len(cromosoma.Ciudades) - 1)
     if indiceMutacion == len(cromosoma.Ciudades)-1:
         indiceMutacion2 = indiceMutacion - 1
     else:
         indiceMutacion2 = indiceMutacion + 1
-    a, b = cromosoma.Ciudades[indiceMutacion], cromosoma.Ciudades[indiceMutacion2]
-    cromosoma.Ciudades[b], cromosoma.Ciudades[a] = cromosoma.Ciudades[a], cromosoma.Ciudades[b]
+    b = cromosoma.Ciudades[indiceMutacion]
+    cromosoma.Ciudades[indiceMutacion] = cromosoma.Ciudades[indiceMutacion2]
+    cromosoma.Ciudades[indiceMutacion2] = b
+    # a, b = cromosoma.Ciudades[indiceMutacion], cromosoma.Ciudades[indiceMutacion2]
+    # cromosoma.Ciudades[b], cromosoma.Ciudades[a] = cromosoma.Ciudades[a], cromosoma.Ciudades[b]
     # mutacion.Mutante.Valor = ''.join(list1)
     # mutacion.IndiceCiudadesCambiadas = numeroBit
     # cromosoma.Ciudades = ''.join(list1)
@@ -257,11 +253,11 @@ class AlgoritmoGenetico:
         cromosomasNoElites = list(filter(lambda c: c.EsElite is False, poblacionInicial.Cromosomas))
         for cromosoma in cromosomasNoElites:
             if self.AplicaMutacion():
-                AdjointMutacion(self.Configuracion, cromosoma)
+                AdjointMutacion(cromosoma)
 
     # Muestra en pantalla los resultados de las iteraciones y el maximo obtenido
     def Print(self):
-        # self.PrintIteraciones()
+        self.PrintIteraciones()
         self.PrintMaximo()
 
     # Muestra en pantalla el maximo de todas las poblaciones
@@ -269,7 +265,7 @@ class AlgoritmoGenetico:
         print("******* Maximo Calculado: ")
         maximo = self.GetMaximoTotal()
         print("- Iteracion: " + str(maximo[0]) + "- Objetivo: " + str(
-            FuncionObjetivo(maximo[1])) + "- Cromosoma: " + maximo[1].Valor)
+            FuncionObjetivo(maximo[1])) + "- Cromosoma: " + str(maximo[1].Distancia()))
 
     # Devuelve el cromosoma con el valor objetivo maximo obtenido
     def GetMaximoTotal(self):

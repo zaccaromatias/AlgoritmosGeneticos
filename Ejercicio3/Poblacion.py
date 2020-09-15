@@ -11,7 +11,7 @@ class Poblacion:
 
     # Devuelve el maximo cromosoma segun su funcion objetivo
     def Maximo(self, funcionObjetivo) -> Cromosoma:
-        valorMaximo = max(funcionObjetivo(cromosoma) for cromosoma in self.Cromosomas)
+        valorMaximo = min(funcionObjetivo(cromosoma) for cromosoma in self.Cromosomas)
         maximo = list(filter(lambda c: funcionObjetivo(c) == valorMaximo, self.Cromosomas))
         return maximo[0]
 
@@ -38,7 +38,7 @@ class Poblacion:
 
     def PrintCromosomas(self, FuncionObjetivo, FuncionFitness):
         for cromosoma in self.Cromosomas:
-            print("Valor: " + cromosoma.Valor + " -- Objetivo: " + str(FuncionObjetivo(
+            print("Valor: " + str(cromosoma.Distancia()) + " -- Objetivo: " + str(FuncionObjetivo(
                 cromosoma)) + " -- Fitness: " + str(FuncionFitness(self, cromosoma)))
 
     def PrintPromedio(self, FuncionObjetivo):
@@ -46,12 +46,12 @@ class Poblacion:
 
     def PrintMaximo(self, FuncionObjetivo, FuncionFitness):
         maximo = self.Maximo(FuncionObjetivo)
-        print("----Maximo: " + str(maximo.Valor) + " -- Objetivo: " + str(FuncionObjetivo(
+        print("----Maximo: " + str(maximo) + " -- Objetivo: " + str(FuncionObjetivo(
             maximo)) + " -- Fitness: " + str(FuncionFitness(self, maximo)))
 
     def PrintMinimo(self, FuncionObjetivo, FuncionFitness):
         minimo = self.Minimo(FuncionObjetivo)
-        print("----Minimo: " + str(minimo.Valor) + " -- Objetivo: " + str(FuncionObjetivo(
+        print("----Minimo: " + str(minimo) + " -- Objetivo: " + str(FuncionObjetivo(
             minimo)) + " -- Fitness: " + str(FuncionFitness(self, minimo)))
 
     def Print(self, FuncionObjetivo, FuncionFitness):
