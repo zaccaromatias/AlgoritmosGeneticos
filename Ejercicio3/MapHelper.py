@@ -46,11 +46,8 @@ class MapHelper:
         # pg.draw.line(Pantalla, ROJO, [10, 10], [650, 470], 2)
 
         for capital in range(len(recorrido) - 1):
-            pg.draw.circle(mapa, ROJO, MapHelper.PosicionCapMapa[capital], 4)
-        print(df.Long[3])
-        print()
+            pg.draw.circle(mapa, ROJO, (df.Lat[recorrido[capital].Indice], df.Long[recorrido[capital].Indice]), 4)
         for rec in range(len(recorrido)-1):
-            print(recorrido[rec + 1].Indice)
             pg.draw.line(mapa, VERDE, (df.Lat[recorrido[rec].Indice], df.Long[recorrido[rec].Indice]),
                          (df.Lat[recorrido[rec + 1].Indice], df.Long[recorrido[rec + 1].Indice]), 3)
         pg.draw.line(mapa, VERDE, (df.Lat[recorrido[len(recorrido)-1].Indice], df.Long[recorrido[len(recorrido)-1].Indice]),
