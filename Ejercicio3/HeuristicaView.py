@@ -53,11 +53,11 @@ class HeuristicaView(Toplevel):
     def Run(self):
         nombreCiudadOrigen = self.Model.CiudadOrigen.get()
         recorrido = None
-        if (nombreCiudadOrigen != ''):
+        if nombreCiudadOrigen != '':
             recorrido = Heuristica.CalcularRecorridoIniciandoEn(
                 list(
                     filter(lambda capital: capital.Nombre == nombreCiudadOrigen, DistanciaHelper.Capitales))[
-                    0],self)
+                    0], self)
         else:
             recorrido = Heuristica.CalcularMejorRecorrido(self)
         self.Model.DistanciaTotal.set(DistanciaHelper.GetDistanciaTotal(recorrido))

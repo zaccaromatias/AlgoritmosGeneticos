@@ -9,6 +9,14 @@ from Ejercicio3.DistanciaHelper import DistanciaHelper
 # Leee el valor de las coordenadas de la segunda hoja del excel
 # Y agrega todos los puntos  uniendolo con el anteior
 class MapHelper:
+    # El orden de las coordenadas es igual al de la lista de capitales
+    # Después lo paso al Excel
+    PosicionCapMapa = [(354, 348), (230, 266), (349, 169), (357, 131), (365, 357),
+                       (172, 216), (128, 305), (139, 455), (312, 276), (411, 166),
+                       (210, 564), (341, 163), (117, 781), (194, 191), (203, 151),
+                       (203, 81), (203, 98), (133, 271), (178, 316), (303, 270),
+                       (228, 396), (224, 175), (139, 855), (250, 504)]
+
     @staticmethod
     def DibujarMapa(recorrido: []):
         wb = load_workbook(filename='TablaCapitales.xlsx')
@@ -20,29 +28,31 @@ class MapHelper:
         data = (islice(r, 1, None) for r in data)
         df = DataFrame(data, index=idx, columns=cols)
 
-        anterior = None
-        fig, ax = plt.subplots(1, figsize=(10, 8))
-        ax.set_title(
-            'Mapa Argentina - Distancia Recorrida ' + repr(DistanciaHelper.GetDistanciaTotal(recorrido)) + ' Km',
-            fontsize=25)
-
         pg.init()
-        VERDE = (10, 255, 10)
         NEGRO = (0, 0, 0)
+        BLANCO = (255, 255, 255)
         ROJO = (255, 0, 0)
+        VERDE = (10, 150, 30)
+        AZUL = (0, 0, 255)
         CAFE = (90, 50, 15)
-        BLANC0 = (255, 255, 255)
+        CELESTE = (0, 220, 220)
         Dimensiones = (500, 892)
-        mapa = pg.transform.scale(
-            pg.image.load('map.png'), (500, 892))
         pg.display.set_caption('Mejor recorrido encontrado')
-        Pantalla = pg.display.set_mode(Dimensiones)
-        Pantalla.fill(BLANC0)
-        Pantalla.blit(mapa, (0, 0))
+        mapa = pg.display.set_mode(Dimensiones)
+        mapa.fill(CELESTE)
+        mapa.blit(pg.image.load('map.png'), (0, 0))
+        # pg.draw.line(Pantalla, ROJO, [10, 10], [650, 470], 2)
 
-        pg.draw.line(Pantalla, ROJO, [10, 10], [650, 470], 2)
+        for capital in range(len(recorrido) - 1):
+            pg.draw.circle(mapa, ROJO, MapHelper.PosicionCapMapa[capital], 4)
 
+        for rec in range(len(recorrido)-1):
+            pg.draw.line(mapa, VERDE, MapHelper.PosicionCapMapa[recorrido[rec].Indice],
+                         MapHelper.PosicionCapMapa[recorrido[rec + 1].Indice], 3)
+        pg.draw.line(mapa, VERDE, MapHelper.PosicionCapMapa[recorrido[len(recorrido)-1].Indice],
+                     MapHelper.PosicionCapMapa[recorrido[0].Indice], 3)
         pg.display.update()
+
         EXIT = False
         while not EXIT:
             for event in pg.event.get():
@@ -50,6 +60,14 @@ class MapHelper:
                     EXIT = True
         pg.quit()
 
+
+"""
+        anterior = None
+        fig, ax = plt.subplots(1, figsize=(10, 8))
+        ax.set_title(
+            'Mapa Argentina - Distancia Recorrida ' + repr(DistanciaHelper.GetDistanciaTotal(recorrido)) + ' Km',
+            fontsize=25)
+            
         for capital in recorrido:
             # Filtrar por nombre de capital para encontrar la latitud y la longitud de las capitales recorridas
             search = list(filter(lambda cp: cp[0] == capital.Nombre, list(df.iterrows())))
@@ -74,3 +92,4 @@ class MapHelper:
         ax.set_xlabel('Longitud')
         ax.set_ylabel('Latitud')
         plt.show()
+"""

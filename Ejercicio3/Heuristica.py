@@ -5,11 +5,11 @@ from Ejercicio3.DistanciaHelper import DistanciaHelper
 class Heuristica:
 
     @staticmethod
-    def CalcularRecorridoIniciandoEn(ciudadPartida: Capital,ventana=None) -> []:
+    def CalcularRecorridoIniciandoEn(ciudadPartida: Capital, ventana=None) -> []:
         recorrido = []
         DistanciaHelper.ResetVisitadas()  # Saca el tilde de visitadas
         ciudadActual = ciudadPartida
-        while (ciudadActual is not None):
+        while ciudadActual is not None:
             if ventana is not None:
                 ventana.progress['value'] += (100 / len(DistanciaHelper.Capitales))
                 ventana.update_idletasks()
