@@ -29,11 +29,10 @@ class Cromosoma:
         # Agrego Regreso a origen
         copia.append(copia[0])
         return copia
-
     # cambia valor del cromosoma
-    """Cambia de posición dos ciudades entre sí en la lista de ciudades del cromosoma."""
 
     def Mutar(self) -> Mutacion:
+        """Cambia de posición dos ciudades entre sí en la lista de ciudades del cromosoma."""
         # El objeto mutacion es solo para datos y saber en una poblaicon cuales fueren mutados
         mutacion = Mutacion(self)
         indiceCiudadACambiar = randint(0, len(self.Ciudades) - 1)

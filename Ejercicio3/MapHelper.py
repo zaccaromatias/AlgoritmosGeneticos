@@ -27,18 +27,28 @@ class MapHelper:
             fontsize=25)
 
         pg.init()
-        Dimensiones = (400, 500)
-        # Pantalla = pg.display.set_mode(Dimensiones)
         VERDE = (10, 255, 10)
         NEGRO = (0, 0, 0)
         ROJO = (255, 0, 0)
         CAFE = (90, 50, 15)
         BLANC0 = (255, 255, 255)
+        Dimensiones = (500, 892)
+        mapa = pg.transform.scale(
+            pg.image.load('map.png'), (500, 892))
+        pg.display.set_caption('Mejor recorrido encontrado')
+        Pantalla = pg.display.set_mode(Dimensiones)
+        Pantalla.fill(BLANC0)
+        Pantalla.blit(mapa, (0, 0))
 
-        # pg.draw.line(Pantalla, VERDE, [10, 10], [650, 470], 2)
-        # Pantalla.fill(BLANC0)
+        pg.draw.line(Pantalla, ROJO, [10, 10], [650, 470], 2)
 
-        # pg.draw.polygon(Pantalla, VERDE, [[350, 10], [20, 400], [680, 400]], 0)
+        pg.display.update()
+        EXIT = False
+        while not EXIT:
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    EXIT = True
+        pg.quit()
 
         for capital in recorrido:
             # Filtrar por nombre de capital para encontrar la latitud y la longitud de las capitales recorridas
@@ -46,7 +56,7 @@ class MapHelper:
             valname = search[0]
             plt.scatter(valname[1].Lat, valname[1].Long, s=100)
             plt.annotate(valname[0], (valname[1].Lat, valname[1].Long))
-            if anterior != None:
+            if anterior is not None:
                 x_values = [anterior[0], valname[1].Lat]
                 y_values = [anterior[1], valname[1].Long]
                 line = ax.plot(x_values, y_values, label=valname[0], linestyle='--')

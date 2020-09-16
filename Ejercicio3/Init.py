@@ -7,8 +7,5 @@ from Ejercicio3.ProgramView import ProgramView
 
 DistanciaHelper.LoadTablaDistanciaYCapitales()
 DistanciaHelper.GetAllCiudades()
-# Cambiale esa igualdad para que vaya por GUI
-if 1 == 0:
-    Program().Run()
-else:
-    ProgramView().Show()
+# Program().Run()
+ProgramView().Show()

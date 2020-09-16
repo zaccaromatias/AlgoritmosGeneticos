@@ -21,10 +21,10 @@ class ConfigurationViewModel:
         self.ProbabilidadMutacion = tk.StringVar(value=0.05)
         self.CiudadInicial = tk.StringVar(value=None)
         self.NumeroCromosomasPoblacion = tk.StringVar(value=50)
-        self.Iteraciones = tk.StringVar(value=100)
-        self.Elite = tk.BooleanVar(value=False)  # elite
+        self.Iteraciones = tk.StringVar(value=200)
+        self.Elite = tk.BooleanVar(value=True)  # elite
         self.DiversidadGenetica = tk.BooleanVar(value=False)
-        self.CantidadElites = tk.StringVar(value=2)
+        self.CantidadElites = tk.StringVar(value=4)
 
     def ToConfiguration(self) -> Configuracion:
         return Configuracion(probabilidadCrossover=float(self.ProbabilidadCrossover.get()),

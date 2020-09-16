@@ -39,7 +39,7 @@ class Poblacion:
     def PrintCromosomas(self, FuncionObjetivo, FuncionFitness):
         for cromosoma in self.Cromosomas:
             print("Valor: " + str(cromosoma.Distancia()) + " -- Objetivo: " + str(FuncionObjetivo(
-                cromosoma)) + " -- Fitness: " + str(FuncionFitness(self, cromosoma)))
+                cromosoma)) + " -- Fitness: " + str(FuncionFitness(cromosoma)))
 
     def PrintPromedio(self, FuncionObjetivo):
         print("----Promedio :" + str(self.Promedio(FuncionObjetivo)))
@@ -47,12 +47,12 @@ class Poblacion:
     def PrintMaximo(self, FuncionObjetivo, FuncionFitness):
         maximo = self.Maximo(FuncionObjetivo)
         print("----Maximo: " + str(maximo) + " -- Objetivo: " + str(FuncionObjetivo(
-            maximo)) + " -- Fitness: " + str(FuncionFitness(self, maximo)))
+            maximo)) + " -- Fitness: " + str(FuncionFitness(maximo)))
 
     def PrintMinimo(self, FuncionObjetivo, FuncionFitness):
         minimo = self.Minimo(FuncionObjetivo)
         print("----Minimo: " + str(minimo) + " -- Objetivo: " + str(FuncionObjetivo(
-            minimo)) + " -- Fitness: " + str(FuncionFitness(self, minimo)))
+            minimo)) + " -- Fitness: " + str(FuncionFitness(minimo)))
 
     def Print(self, FuncionObjetivo, FuncionFitness):
         self.PrintCromosomas(FuncionObjetivo, FuncionFitness)

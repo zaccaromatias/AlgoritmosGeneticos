@@ -72,7 +72,7 @@ def SeleccionarCromosomaAlAzar(cromosomas: []) -> Cromosoma:
     return cromosomas[numero]
 
 
-def FuncionFitness(p: Poblacion, cromosoma: Cromosoma):
+def FuncionFitness(cromosoma: Cromosoma):
     """Calcula y devuelve el fitness de un cromosoma determinado (1/Distancia)"""
     return 1 / FuncionObjetivo(cromosoma)
 
@@ -123,12 +123,12 @@ class AlgoritmoGenetico:
 
     def DiversidadGenetica(self, poblacionInicial: Poblacion):
         """Metodo extra para generar una mayor diversidad genética"""
-        similares = list(filter(lambda c: 0.105 >= FuncionFitness(poblacionInicial, c) > 0.09,
+        similares = list(filter(lambda c: 0.105 >= FuncionFitness(c) > 0.09,
                                 poblacionInicial.Cromosomas))
         if len(similares) >= 6:
             for cr in similares:
                 if random() < 0.4 and not cr.EsElite:
-                    numeroBit = randint(0, len(cr.Valor) - 1)
+                    numeroBit = randint(0, len(cr.Ciudades) - 1)
                     list1 = list(cr.Valor)
                     if list1[numeroBit] == '0':
                         list1[numeroBit] = '1'
@@ -153,7 +153,7 @@ class AlgoritmoGenetico:
                 valorMinimo = 0
             else:
                 valorMinimo = porciones[len(porciones) - 1].ValorMaximo
-            valorMaximo = valorMinimo + FuncionFitness(poblacionInicial, cromosoma)
+            valorMaximo = valorMinimo + FuncionFitness(cromosoma)
             cromosoma.PorcionRuleta.ValorMinimo = valorMinimo
             cromosoma.PorcionRuleta.ValorMaximo = valorMaximo
             porciones.append(cromosoma.PorcionRuleta)
@@ -173,12 +173,11 @@ class AlgoritmoGenetico:
         countTrue = 0
         while countTrue < self.Configuracion.CantidadElites:
             minimaDistancia = max(
-                [FuncionFitness(poblacionInicial, c) for c in
+                [FuncionFitness(c) for c in
                  filter(lambda cd: cd.EsElite is False, poblacionInicial.Cromosomas)])
             best = \
-                list(filter(lambda cd: cd.EsElite is False and FuncionFitness(poblacionInicial, cd) == minimaDistancia,
-                            poblacionInicial.Cromosomas))[
-                    0]
+                list(filter(lambda cd: cd.EsElite is False and FuncionFitness(cd) == minimaDistancia,
+                            poblacionInicial.Cromosomas))[0]
             best.Elite()
             countTrue += 1
         return poblacionInicial
@@ -250,8 +249,8 @@ class AlgoritmoGenetico:
         for poblacion in self.Poblaciones:
             mejores.append([iteracion, poblacion.Minimo(FuncionObjetivo)])
             iteracion += 1
-        mejorValor = max(FuncionObjetivo(cromosoma[1]) for cromosoma in mejores)
-        mejorDeLosMejores = list(filter(lambda c: FuncionObjetivo(c[1]) == mejorValor, mejores))[0]
+        mejorValor = max(FuncionFitness(cromosoma[1]) for cromosoma in mejores)
+        mejorDeLosMejores = list(filter(lambda c: FuncionFitness(c[1]) == mejorValor, mejores))[0]
         return mejorDeLosMejores
 
     # Muestra en pantalla valores de las iteraciones
@@ -420,5 +419,5 @@ class AlgoritmoGenetico:
             if not cromosoma.EsElite:
                 elite = "No"
             fila = [iteracion, cromosoma.Valor, FuncionObjetivo(cromosoma),
-                    FuncionFitness(poblacion, cromosoma), elite]
+                    FuncionFitness(cromosoma), elite]
             dataIteraciones.append(fila)
