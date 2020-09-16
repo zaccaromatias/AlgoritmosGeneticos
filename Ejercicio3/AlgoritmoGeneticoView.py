@@ -2,7 +2,7 @@ from Ejercicio3.Configuracion import ConfigurationViewModel
 from Ejercicio3.AlgoritmoGenetico import AlgoritmoGenetico
 
 from tkinter import *
-
+from tkinter import ttk
 from Ejercicio3.DistanciaHelper import DistanciaHelper
 from Ejercicio3.MapHelper import MapHelper
 
@@ -45,6 +45,8 @@ class AlgoritmoGeneticoView(Toplevel):
         lblCantidadDeElites = Label(self, text="Cantidad de Elites: ")
         txtCantidadElites = Spinbox(self, from_=1, to=9999999, increment=1,
                                     textvariable=self.ConfigurationViewModel.CantidadElites)
+        self.progress = ttk.Progressbar(self, orient=HORIZONTAL,
+                                        length=200, mode='determinate')
 
         # Se ubican los diferentes elementos de la ventana dentro de ella.
         lblProbabilidadCrossover.pack()
@@ -76,13 +78,20 @@ class AlgoritmoGeneticoView(Toplevel):
         chkDiversidadGenetica.pack()
         chkDiversidadGenetica.place(x=230, y=190)
         btnrun.pack()
-        btnrun.place(x=150, y=220)
+        btnrun.place(x=240, y=220)
+        self.progress.pack()
+        self.progress.place(x=10, y=220)
 
     # Este método se invoca al hacer click en Ejecutar y se encarga de invocar a los métodos del algoritmo proveyendo
     # los parámetros ingresados.
     def Run(self):
-        algoritmo = AlgoritmoGenetico(self.ConfigurationViewModel.ToConfiguration())
-        algoritmo.Run()
+        self.progress['value'] = 0
+        self.update_idletasks()
+        config = self.ConfigurationViewModel.ToConfiguration()
+        algoritmo = AlgoritmoGenetico(config)
+        algoritmo.Run(self)
         mejor = algoritmo.GetMejorCromosomaDeTodasLasPoblaciones()
         DistanciaHelper.PrintRecorrido(mejor[1].GetAllCiudades())
         MapHelper.DibujarMapa(mejor[1].GetAllCiudades())
+        self.progress['value'] = 0
+        self.update_idletasks()

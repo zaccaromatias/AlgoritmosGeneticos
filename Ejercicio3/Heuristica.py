@@ -5,11 +5,14 @@ from Ejercicio3.DistanciaHelper import DistanciaHelper
 class Heuristica:
 
     @staticmethod
-    def CalcularRecorridoIniciandoEn(ciudadPartida: Capital) -> []:
+    def CalcularRecorridoIniciandoEn(ciudadPartida: Capital,ventana=None) -> []:
         recorrido = []
         DistanciaHelper.ResetVisitadas()  # Saca el tilde de visitadas
         ciudadActual = ciudadPartida
         while (ciudadActual is not None):
+            if ventana is not None:
+                ventana.progress['value'] += (100 / len(DistanciaHelper.Capitales))
+                ventana.update_idletasks()
             recorrido.append(ciudadActual)
             ciudadActual.SetVisitada(True)
             ciudadActual = Heuristica.BuscarCiudadMasCercana(ciudadActual)
@@ -31,10 +34,13 @@ class Heuristica:
         return destino
 
     @staticmethod
-    def CalcularMejorRecorrido() -> []:
+    def CalcularMejorRecorrido(ventana=None) -> []:
         mejorRecorrido = None
         minimaDistancia = None
         for capital in DistanciaHelper.Capitales:
+            if ventana is not None:
+                ventana.progress['value'] += (100 / len(DistanciaHelper.Capitales))
+                ventana.update_idletasks()
             recorrido = Heuristica.CalcularRecorridoIniciandoEn(capital)
             distancia = DistanciaHelper.GetDistanciaTotal(recorrido)
             if minimaDistancia is None or distancia < minimaDistancia:

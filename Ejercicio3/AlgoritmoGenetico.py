@@ -88,9 +88,12 @@ class AlgoritmoGenetico:
         self.Poblaciones = []
         self.PoblacionActual = []
 
-    def Run(self):
+    def Run(self, ventana=None):
         """Metodo principal que realiza las iteraciones del programa"""
         for i in range(self.Configuracion.Iteraciones):
+            if (ventana is not None):
+                ventana.progress['value'] += (100 / self.Configuracion.Iteraciones)
+                ventana.update_idletasks()
             if i == 0:
                 # Siendo la primera iteracion genera la poblacion inicial
                 self.Poblaciones.append(self.GetPoblacionInicial())

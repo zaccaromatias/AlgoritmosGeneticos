@@ -42,8 +42,13 @@ class HeuristicaView(Toplevel):
         lblDistanciaTotalValue.pack()
         lblDistanciaTotalValue.place(x=150, y=50)
 
+        self.progress = ttk.Progressbar(self, orient=HORIZONTAL,
+                                        length=200, mode='determinate')
+
         btnrun.pack()
-        btnrun.place(x=150, y=220)
+        btnrun.place(x=240, y=220)
+        self.progress.pack()
+        self.progress.place(x=10, y=220)
 
     def Run(self):
         nombreCiudadOrigen = self.Model.CiudadOrigen.get()
@@ -52,8 +57,10 @@ class HeuristicaView(Toplevel):
             recorrido = Heuristica.CalcularRecorridoIniciandoEn(
                 list(
                     filter(lambda capital: capital.Nombre == nombreCiudadOrigen, DistanciaHelper.Capitales))[
-                    0])
+                    0],self)
         else:
-            recorrido = Heuristica.CalcularMejorRecorrido()
+            recorrido = Heuristica.CalcularMejorRecorrido(self)
         self.Model.DistanciaTotal.set(DistanciaHelper.GetDistanciaTotal(recorrido))
         MapHelper.DibujarMapa(recorrido)
+        self.progress['value'] = 0
+        self.update_idletasks()
