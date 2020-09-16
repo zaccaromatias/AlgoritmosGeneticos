@@ -7,6 +7,7 @@ class Heuristica:
 
     @staticmethod
     def GetRecorrerCuidad(cuidadpartida: int):
+        DistanciaHelper.InicialCiudadVisitada()
         """Calcula el recorrido con la ciudad elegida como inicial"""
         DistanciaHelper.recorrido[23] = DistanciaHelper.recorrido[0] = cuidadpartida
         cuidadactual = cuidadpartida
@@ -62,7 +63,7 @@ class Heuristica:
         """Muestra el recorrido en pantalla junto con la distancia total calculada en KM"""
         reckm = 0
         print("Indice" + "Ciudad".center(30, " "))
-        for rec in range(len(DistanciaHelper.recorrido)):
+        for rec in range(len(DistanciaHelper.Capitales) - 1):
             print(repr(DistanciaHelper.Capitales[DistanciaHelper.recorrido[rec]].Indice) +
                   repr(DistanciaHelper.Capitales[DistanciaHelper.recorrido[rec]].Nombre).center(40, " "))
         for cap in range(len(DistanciaHelper.recorrido) - 1):

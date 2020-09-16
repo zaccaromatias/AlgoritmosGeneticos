@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from itertools import islice
 from openpyxl import load_workbook
 from pandas import DataFrame
+import pygame as pg
 from Ejercicio3.DistanciaHelper import DistanciaHelper
 
 # Leee el valor de las coordenadas de la segunda hoja del excel
@@ -22,6 +23,21 @@ class MapHelper:
         anterior = None
         fig , ax = plt.subplots(1 ,figsize = (10,8))
         ax.set_title('Mapa Argentina', fontsize = 25)
+
+
+        pg.init()
+        Dimensiones = (400, 500)
+        #Pantalla = pg.display.set_mode(Dimensiones)
+        VERDE = (10, 255, 10)
+        NEGRO = (0, 0, 0)
+        ROJO = (255, 0, 0)
+        CAFE = (90, 50, 15)
+        BLANC0 =(255,255,255)
+
+        #pg.draw.line(Pantalla, VERDE, [10, 10], [650, 470], 2)
+        #Pantalla.fill(BLANC0)
+
+        #pg.draw.polygon(Pantalla, VERDE, [[350, 10], [20, 400], [680, 400]], 0)
 
         for value in range(len(DistanciaHelper.recorrido)):
             capital = DistanciaHelper.Capitales[DistanciaHelper.recorrido[value]]
