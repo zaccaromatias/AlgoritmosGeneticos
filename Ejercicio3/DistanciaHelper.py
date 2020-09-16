@@ -10,11 +10,6 @@ class DistanciaHelper:
     TablaDistancias = None
     """Arreglo que contiene las distancias entre capitales"""
     Capitales = []
-    """Arreglo que contiene datos de todas las capitales (objetos Capital)"""
-    Visitadas = np.arange(24)
-    """Arreglo para ver que ciudad que fue visitada (==1) o no (==0)"""
-    recorrido = np.arange(24)
-    """Lista de índices de capitales que ya están en el recorrido"""
 
     @staticmethod
     def LoadTablaDistanciaYCapitales():
@@ -33,6 +28,10 @@ class DistanciaHelper:
             DistanciaHelper.Capitales.append(Capital(columna, indice))
             indice += 1
         pass
+    @staticmethod
+    def ResetVisitadas():
+        for capital in DistanciaHelper.Capitales:
+            capital.SetVisitada(False)
 
     @staticmethod
     def GetDistancia(capitalOrigen: Capital, capitalDestino: Capital) -> int:
@@ -47,7 +46,21 @@ class DistanciaHelper:
             print(repr(cap.Indice) + repr(cap.Nombre).center(40, " "))
 
     @staticmethod
-    def InicialCiudadVisitada():
-        """Funcion que da pie a la inicialización de las ciudades (set Visitadas[i]==0)"""
-        for cap in range(len(DistanciaHelper.Capitales) - 1):
-            DistanciaHelper.Visitadas[cap] = 0
+    def GetDistanciaTotal(capitales: []) -> int:
+        distanciaTotal = 0
+        for i in range(len(capitales)):
+            if ((i + 1) == len(capitales)):
+                return distanciaTotal
+            distanciaTotal += DistanciaHelper.GetDistancia(capitales[i], capitales[i + 1])
+        return distanciaTotal
+
+    @staticmethod
+    def PrintRecorrido(recorrido: []):
+        """Muestra el recorrido en pantalla junto con la distancia total calculada en KM"""
+        reckm = 0
+        print("Indice" + "Ciudad".center(30, " "))
+        for capital in recorrido:
+            print(repr(capital.Indice) +
+                  repr(capital.Nombre).center(40, " "))
+
+        print("La distancia total recorrida es de " + repr(DistanciaHelper.GetDistanciaTotal(recorrido)) + " km")

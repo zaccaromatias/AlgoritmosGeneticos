@@ -7,7 +7,7 @@ from Ejercicio3.AlgoritmoGenetico import AlgoritmoGenetico
 from Ejercicio3.Configuracion import Configuracion
 from Ejercicio3.DistanciaHelper import DistanciaHelper
 from Ejercicio3.Heuristica import Heuristica
-from Ejercicio3.MapHelper import  MapHelper
+from Ejercicio3.MapHelper import MapHelper
 
 
 def IngresarConfiguracion() -> Configuracion:
@@ -36,8 +36,8 @@ def IngresarConfiguracion() -> Configuracion:
     # printMutacionesBool = False
     # if printMutaciones == "1" or printMutaciones == "True":
     #     printMutacionesBool = True
-    return Configuracion(10, 10, 9, 20,
-                         False, False)
+    return Configuracion(0.75, 0.05, 50, 20,
+                         False, False, 2)
     """return Configuracion(porcentajeCrossOver, porcentajeMutacion, cantidadInicialPoblacion, iteraciones,
                          elite, diversidadGenetica)"""
 
@@ -60,26 +60,26 @@ class Program:
     def Run():
         """Ejecuta programa principal"""
         opt = 0
-        DistanciaHelper.LoadTablaDistanciaYCapitales()
-        DistanciaHelper.GetAllCiudades()
-        DistanciaHelper.InicialCiudadVisitada()
         while opt != 5:
             print()
             Initial()
             opt = input("Ingrese opción: ")
             if opt == "1":
-                cuidadElegida = int(input("Ciudad de partida: "))
-                Heuristica.GetRecorrerCuidad(cuidadElegida)
-                Heuristica.PrintRecorrido()
-                MapHelper.DibujarMapa()
+                ciudadElegida = int(input("Ciudad de partida: "))
+                recorrido = Heuristica.CalcularRecorridoIniciandoEn(DistanciaHelper.Capitales[ciudadElegida])
+                DistanciaHelper.PrintRecorrido(recorrido)
+                MapHelper.DibujarMapa(recorrido)
             elif opt == "2":
-                Heuristica.GetOptimo()
-                MapHelper.DibujarMapa()
+                recorrido = Heuristica.CalcularMejorRecorrido()
+                DistanciaHelper.PrintRecorrido(recorrido)
+                MapHelper.DibujarMapa(recorrido)
             elif opt == "3":
                 configuracion = IngresarConfiguracion()
                 algoritmo = AlgoritmoGenetico(configuracion)
                 algoritmo.Run()
-                algoritmo.Print()
+                mejor = algoritmo.GetMejorCromosomaDeTodasLasPoblaciones()
+                DistanciaHelper.PrintRecorrido(mejor[1].GetAllCiudades())
+                MapHelper.DibujarMapa(mejor[1].GetAllCiudades())
                 """algoritmo.ExportToExcel()"""
             elif opt == "5":
                 break

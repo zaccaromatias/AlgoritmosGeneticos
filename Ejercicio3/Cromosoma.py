@@ -1,5 +1,7 @@
 from Ejercicio3.DistanciaHelper import DistanciaHelper
+from Ejercicio3.Mutacion import Mutacion
 from Ejercicio3.PorcionRuleta import PorcionRuleta
+from random import randint
 
 
 # Representa a un cromosoma con su valor, si es marcado como elite
@@ -10,8 +12,7 @@ class Cromosoma:
         self.PorcionRuleta = PorcionRuleta()
         self.Ciudades = c.copy()
 
-        # Resetea valores
-
+    # Resetea valores
     def Reset(self):
         self.PorcionRuleta = PorcionRuleta()
         self.EsElite = False
@@ -21,15 +22,30 @@ class Cromosoma:
         self.EsElite = True
 
     def Distancia(self):
-        distanciaRecorrida = 0
-        for i in range(len(self.Ciudades) - 1):
-            distanciaRecorrida += DistanciaHelper.GetDistancia(self.Ciudades[i], self.Ciudades[i + 1])
-        distanciaRecorrida += DistanciaHelper.GetDistancia(self.Ciudades[len(self.Ciudades) - 1], self.Ciudades[0])
-        return distanciaRecorrida
+        return DistanciaHelper.GetDistanciaTotal(self.GetAllCiudades())
+
+    def GetAllCiudades(self):
+        copia = self.Ciudades.copy()
+        # Agrego Regreso a origen
+        copia.append(copia[0])
+        return copia
 
     # cambia valor del cromosoma
-    def Mutar(self):
-        pass
+    """Cambia de posición dos ciudades entre sí en la lista de ciudades del cromosoma."""
+
+    def Mutar(self) -> Mutacion:
+        # El objeto mutacion es solo para datos y saber en una poblaicon cuales fueren mutados
+        mutacion = Mutacion(self)
+        indiceCiudadACambiar = randint(0, len(self.Ciudades) - 1)
+        indiceOtraCiudadACambiar = randint(0, len(self.Ciudades) - 1)
+        # Para elegir otro punto que no sea el mismo
+        while (indiceCiudadACambiar == indiceOtraCiudadACambiar):
+            indiceOtraCiudadACambiar = randint(0, len(self.Ciudades) - 1)
+        auxiliar = self.Ciudades[indiceCiudadACambiar]
+        self.Ciudades[indiceCiudadACambiar] = self.Ciudades[indiceOtraCiudadACambiar]
+        self.Ciudades[indiceOtraCiudadACambiar] = auxiliar
+        mutacion.SetMutante(self, [indiceCiudadACambiar, indiceOtraCiudadACambiar])
+        return mutacion
 
     # Devuelve una instancia nueva pero con mismos valores
     # Para evitar valores por referencia
@@ -37,5 +53,5 @@ class Cromosoma:
         cromosoma = Cromosoma(self.Ciudades)
         cromosoma.EsElite = self.EsElite
         cromosoma.PorcionRuleta = self.PorcionRuleta
-        cromosoma.Ciudades = self.Ciudades
+        cromosoma.Ciudades = self.Ciudades.copy()
         return cromosoma

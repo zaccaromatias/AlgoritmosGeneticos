@@ -3,15 +3,12 @@ from random import randint, uniform, random, shuffle
 # Para el manejo de la ruta de archivo
 from path import Path
 import os
-
 # Para la exportacion a excel
 import datetime
 import xlsxwriter
-
 from Ejercicio3 import DistanciaHelper
 from Ejercicio3.Cromosoma import Cromosoma
 from Ejercicio3.Crossover import Crossover
-from Ejercicio3.Mutacion import Mutacion
 from Ejercicio3.Poblacion import Poblacion
 from Ejercicio3.DistanciaHelper import DistanciaHelper
 
@@ -75,26 +72,6 @@ def SeleccionarCromosomaAlAzar(cromosomas: []) -> Cromosoma:
     return cromosomas[numero]
 
 
-def AdjointMutacion(cromosoma: Cromosoma):
-    """Cambia de posición dos ciudades entre sí en la lista de ciudades del cromosoma. Si se ha elegido una ciudad
-        inicial, no toca la que se encuentra en el índice 0."""
-    # mutacion = Mutacion(cromosoma)
-    indiceMutacion = randint(0, len(cromosoma.Ciudades) - 1)
-    if indiceMutacion == len(cromosoma.Ciudades)-1:
-        indiceMutacion2 = indiceMutacion - 1
-    else:
-        indiceMutacion2 = indiceMutacion + 1
-    b = cromosoma.Ciudades[indiceMutacion]
-    cromosoma.Ciudades[indiceMutacion] = cromosoma.Ciudades[indiceMutacion2]
-    cromosoma.Ciudades[indiceMutacion2] = b
-    # a, b = cromosoma.Ciudades[indiceMutacion], cromosoma.Ciudades[indiceMutacion2]
-    # cromosoma.Ciudades[b], cromosoma.Ciudades[a] = cromosoma.Ciudades[a], cromosoma.Ciudades[b]
-    # mutacion.Mutante.Valor = ''.join(list1)
-    # mutacion.IndiceCiudadesCambiadas = numeroBit
-    # cromosoma.Ciudades = ''.join(list1)
-    # poblacion.Mutaciones.append(mutacion)
-
-
 def FuncionFitness(p: Poblacion, cromosoma: Cromosoma):
     """Calcula y devuelve el fitness de un cromosoma determinado (1/Distancia)"""
     return 1 / FuncionObjetivo(cromosoma)
@@ -138,16 +115,10 @@ class AlgoritmoGenetico:
         """Crea la población inicial generando cromosomas con valores binarios totalmente aleatorios"""
         poblacion = Poblacion()
         for i in range(self.Configuracion.NumeroCromosomasPoblacion):
-            c = DistanciaHelper.Capitales.copy()
-            # Si se eligió una ciudad inicial, se asegura de que esta esté al principio del array
-            if self.Configuracion.CiudadInicial is not int:
-                ciudadInicial = DistanciaHelper.Capitales[self.Configuracion.CiudadInicial]
-                c.remove(ciudadInicial)
-                shuffle(c)
-                c.insert(0, ciudadInicial)
-            else:
-                shuffle(c)
-            poblacion.Cromosomas.append(Cromosoma(c))
+            capitales = DistanciaHelper.Capitales.copy()
+            # Las desordena al azar
+            shuffle(capitales)
+            poblacion.Cromosomas.append(Cromosoma(capitales))
         return poblacion
 
     def DiversidadGenetica(self, poblacionInicial: Poblacion):
@@ -195,15 +166,19 @@ class AlgoritmoGenetico:
             nuevaPoblacion.Cromosomas.append(lista[0].Clone())
         return nuevaPoblacion
 
-    # Logica para marcar los mejores 2 cromosomas segun su fitness
-    # Recorre dos veces buscando el mayor fitness entre los Cromosomas que no son elites
+    # Logica para marcar los mejores X cromosomas segun su fitness
+    # Recorre X veces buscando el mayor fitness entre los Cromosomas que no son elites
     # Luego el cromosoma correspondiente para marcarlo como elite
     def Elite(self, poblacionInicial: Poblacion) -> Poblacion:
         countTrue = 0
         while countTrue < self.Configuracion.CantidadElites:
-            result = min([c.Distancia() for c in filter(lambda cd: cd.EsElite is False, poblacionInicial.Cromosomas)])
+            minimaDistancia = max(
+                [FuncionFitness(poblacionInicial, c) for c in
+                 filter(lambda cd: cd.EsElite is False, poblacionInicial.Cromosomas)])
             best = \
-            list(filter(lambda cd: cd.EsElite is False and cd.Distancia() == result, poblacionInicial.Cromosomas))[0]
+                list(filter(lambda cd: cd.EsElite is False and FuncionFitness(poblacionInicial, cd) == minimaDistancia,
+                            poblacionInicial.Cromosomas))[
+                    0]
             best.Elite()
             countTrue += 1
         return poblacionInicial
@@ -253,30 +228,31 @@ class AlgoritmoGenetico:
         cromosomasNoElites = list(filter(lambda c: c.EsElite is False, poblacionInicial.Cromosomas))
         for cromosoma in cromosomasNoElites:
             if self.AplicaMutacion():
-                AdjointMutacion(cromosoma)
+                poblacionInicial.Mutaciones.append(cromosoma.Mutar())
 
     # Muestra en pantalla los resultados de las iteraciones y el maximo obtenido
     def Print(self):
-        self.PrintIteraciones()
+        # self.PrintIteraciones()
         self.PrintMaximo()
 
     # Muestra en pantalla el maximo de todas las poblaciones
     def PrintMaximo(self):
         print("******* Maximo Calculado: ")
-        maximo = self.GetMaximoTotal()
+        maximo = self.GetMejorCromosomaDeTodasLasPoblaciones()
         print("- Iteracion: " + str(maximo[0]) + "- Objetivo: " + str(
             FuncionObjetivo(maximo[1])) + "- Cromosoma: " + str(maximo[1].Distancia()))
 
     # Devuelve el cromosoma con el valor objetivo maximo obtenido
-    def GetMaximoTotal(self):
-        maximos = []
+    def GetMejorCromosomaDeTodasLasPoblaciones(self):
+        mejores = []
         iteracion = 1
+        # En este caso el mejor el que tenga menor funcion objetivo
         for poblacion in self.Poblaciones:
-            maximos.append([iteracion, poblacion.Maximo(FuncionObjetivo)])
+            mejores.append([iteracion, poblacion.Minimo(FuncionObjetivo)])
             iteracion += 1
-        valorMaximo = max(FuncionObjetivo(cromosoma[1]) for cromosoma in maximos)
-        maximo = list(filter(lambda c: FuncionObjetivo(c[1]) == valorMaximo, maximos))[0]
-        return maximo
+        mejorValor = max(FuncionObjetivo(cromosoma[1]) for cromosoma in mejores)
+        mejorDeLosMejores = list(filter(lambda c: FuncionObjetivo(c[1]) == mejorValor, mejores))[0]
+        return mejorDeLosMejores
 
     # Muestra en pantalla valores de las iteraciones
     def PrintIteraciones(self):
@@ -383,7 +359,7 @@ class AlgoritmoGenetico:
                                                                                                  'header': 'Cromosoma(Maximo)'},
                                                                                              {'header': 'Promedio'}
                                                                                          ]})
-        maximo = self.GetMaximoTotal()
+        maximo = self.GetMejorCromosomaDeTodasLasPoblaciones()
         textoMaximo = "- Iteracion: " + str(maximo[0]) + "- Objetivo: " + str(
             FuncionObjetivo(maximo[1])) + "- Cromosoma: " + maximo[1].Valor
         worksheetResultados.write('F1', 'MAXIMO:', bold)
