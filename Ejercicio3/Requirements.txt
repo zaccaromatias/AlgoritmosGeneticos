@@ -3,4 +3,5 @@ Path
 pandas
 matplotlib
 xlsxwriter
+pygame
 

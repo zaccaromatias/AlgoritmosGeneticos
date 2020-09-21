@@ -14,20 +14,31 @@ class DistanciaHelper:
     @staticmethod
     def LoadTablaDistanciaYCapitales():
         """Lee desde Excel la tabla de ciudades y distancias e inicializa con ella TablaDistancias y Capitales"""
-        wb = load_workbook(filename='TablaCapitales.xlsx')
-        ws = wb['Sheet1']
-        data = ws.values
-        cols = next(data)[1:]
-        data = list(data)
-        idx = [r[0] for r in data]
-        data = (islice(r, 1, None) for r in data)
-        df = DataFrame(data, index=idx, columns=cols)
-        DistanciaHelper.TablaDistancias = df.values
+        workbook = load_workbook(filename='TablaCapitales.xlsx')
+        worksheetdistancia = workbook['Sheet1']
+        datadistancia = worksheetdistancia.values
+        columnasdistancia = next(datadistancia)[1:]
+        datadistancia = list(datadistancia)
+        idxdistancia = [r[0] for r in datadistancia]
+        datadistancia = (islice(r, 1, None) for r in datadistancia)
+        dataframedistancia = DataFrame(datadistancia, index=idxdistancia, columns=columnasdistancia)
+        DistanciaHelper.TablaDistancias = dataframedistancia.values
         indice = 0
-        for columna in cols:
-            DistanciaHelper.Capitales.append(Capital(columna, indice))
+
+        worksheetcoordenadas = workbook['Coordenadas']
+        datacoordenadas = worksheetcoordenadas.values
+        columnascoordenadas = next(datacoordenadas)[1:]
+        datacoordenadas = list(datacoordenadas)
+        idxcoordenadas = [r[0] for r in datacoordenadas]
+        datacoordenadas = (islice(r, 1, None) for r in datacoordenadas)
+        dataframecoordenadas = DataFrame(datacoordenadas, index=idxcoordenadas, columns=columnascoordenadas)
+
+        for columna in columnasdistancia:
+            DistanciaHelper.Capitales.append(
+                Capital(columna, indice, dataframecoordenadas.Lat[indice], dataframecoordenadas.Long[indice]))
             indice += 1
         pass
+
     @staticmethod
     def ResetVisitadas():
         for capital in DistanciaHelper.Capitales:
