@@ -14,6 +14,25 @@ from Ejercicio3.DistanciaHelper import DistanciaHelper
 
 
 def AplicarCrossoverCiclico(padre1: Cromosoma, padre2: Cromosoma):
+    ciclos = []
+    hijo1 = [0 for x in range(24)]
+    hijo2 = list.copy(hijo1)
+    ciclo = []
+    i = 0
+    indicePadre1 = i
+    ciclo.append(indicePadre1)
+    indicePadre2 = -1  # <- Valor dummy para poder entrar al bucle
+    while i != indicePadre2:
+        indicePadre2 = padre2.Ciudades.index(padre1.Ciudades[indicePadre1])
+        ciclo.append(indicePadre2)
+        if ciclo[len(ciclo) - 1] == ciclo[0]:
+            ciclo.remove(ciclo[len(ciclo) - 1])  # <- Para que el primer elemento del ciclo no aparezca repetido
+            break
+        indicePadre1 = indicePadre2
+    ciclos.append(ciclo)  # <- Se agrega el ciclo actual a la lista de ciclos
+
+
+def AplicarCrossoverCiclico2(padre1: Cromosoma, padre2: Cromosoma):
     """Define los ciclos y luego aplica el crossover entre dos cromosomas padres.
     Devuelve dos cromosomas hijos y la cantidad de ciclos"""
 
