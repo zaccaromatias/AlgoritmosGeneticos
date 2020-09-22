@@ -7,61 +7,63 @@ from Ejercicio3.DistanciaHelper import DistanciaHelper
 import time
 
 
-# Leee el valor de las coordenadas de la segunda hoja del excel
-# Y agrega todos los puntos  uniendolo con el anteior
+# Lee el valor de las coordenadas de la segunda hoja del excel
+# Y agrega todos los puntos uniendolo con el anterior
 class MapHelper:
-    # El orden de las coordenadas es igual al de la lista de capitales
-    # Después lo paso al Excel
-    """
-    PosicionCapMapa = [(354, 348), (230, 266), (349, 169), (357, 131), (365, 357),
-                       (172, 216), (128, 305), (139, 455), (312, 276), (411, 166),
-                       (210, 564), (341, 163), (117, 781), (194, 191), (203, 151),
-                       (203, 81), (203, 98), (133, 271), (178, 316), (303, 270),
-                       (228, 396), (224, 175), (139, 855), (250, 504)]
-    """
-
     @staticmethod
     def DibujarMapa(recorrido: []):
+        """Método que dibuja el recorrido recibido como parámetro en un mapa"""
         pg.init()
         NEGRO = (0, 0, 0)
+        GRIS = (200, 200, 200)
         BLANCO = (255, 255, 255)
         ROJO = (255, 0, 0)
-        VERDE = (10, 150, 30)
-        AZUL = (0, 0, 255)
-        CAFE = (90, 50, 15)
-        CELESTE = (0, 220, 220)
+        CELESTE = (0, 255, 100)
         Dimensiones = (500, 892)
         pg.display.set_caption('Mejor recorrido - ' + repr(DistanciaHelper.GetDistanciaTotal(recorrido)) + ' Km')
         mapa = pg.display.set_mode(Dimensiones)
-        mapa.fill(CELESTE)
+        mapa.fill(GRIS)
         mapa.blit(pg.image.load('map.png'), (0, 0))
-        # pg.draw.line(Pantalla, ROJO, [10, 10], [650, 470], 2)
         posicionRefenciasX = 370
-        posicionReferenciaY =470
-        font = pg.font.Font('freesansbold.ttf', 12)
-        text = font.render('- Referencias', True, ROJO)
+        posicionReferenciaY = 470
+        font = pg.font.SysFont('calibri', 14)
+        font.set_italic(True)
+        rectReferencias = pg.Rect(295, 460, 150, 330)
+        pg.draw.rect(mapa, BLANCO, rectReferencias)
+        pg.draw.line(mapa, NEGRO, (295, 460), (295 + 150, 460), 2)
+        pg.draw.line(mapa, NEGRO, (295 + 150, 460), (295 + 150, 460 + 330), 2)
+        pg.draw.line(mapa, NEGRO, (295 + 150, 460 + 330), (295, 460 + 330), 2)
+        pg.draw.line(mapa, NEGRO, (295, 460 + 330), (295, 460), 2)
+        font.set_underline(True)
+        text = font.render('Referencias:', True, NEGRO)
         textRect = text.get_rect()
         textRect.center = (posicionRefenciasX, posicionReferenciaY)
         mapa.blit(text, textRect)
+        font.set_underline(False)
         pg.display.update()
+        font.set_italic(False)
         for indice in range(len(recorrido) - 1):
-            # pg.draw.circle(mapa, ROJO, (recorrido[indice].Lat, recorrido[indice].Long), 4)
-            text = font.render(repr(indice + 1) + '.' + recorrido[indice].Nombre, True, ROJO)
-            textRect = text.get_rect()
-            textRect.center = (recorrido[indice].Lat, recorrido[indice].Long)
-            mapa.blit(text, textRect)
-            text = font.render(repr(indice + 1) + '.' + recorrido[indice].Nombre, True, ROJO)
+            pg.draw.circle(mapa, ROJO, (recorrido[indice].Lat, recorrido[indice].Long), 4)
+            text = font.render(repr(indice + 1) + ". " + recorrido[indice].Nombre, True, NEGRO)
             textRect = text.get_rect()
             textRect.center = (posicionRefenciasX, posicionReferenciaY+(13*(indice+1)))
             mapa.blit(text, textRect)
 
         pg.display.update()
+        font.set_bold(True)
         for indice in range(len(recorrido) - 1):
-            pg.draw.line(mapa, VERDE, (recorrido[indice].Lat, recorrido[indice].Long),
-                         (recorrido[indice + 1].Lat, recorrido[indice + 1].Long), 3)
+            pg.draw.aaline(mapa, CELESTE, (recorrido[indice].Lat, recorrido[indice].Long),
+                           (recorrido[indice + 1].Lat, recorrido[indice + 1].Long), 1)
             pg.display.update()
             time.sleep(0.1)
 
+        font.set_bold(True)
+        for indice in range(len(recorrido) - 1):
+            text = font.render(repr(indice + 1), True, NEGRO)
+            textRect = text.get_rect()
+            textRect.center = (recorrido[indice].Lat + 8, recorrido[indice].Long - 8)
+            mapa.blit(text, textRect)
+        pg.display.update()
 
         EXIT = False
         while not EXIT:

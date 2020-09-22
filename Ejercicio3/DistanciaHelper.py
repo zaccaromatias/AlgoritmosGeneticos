@@ -51,16 +51,17 @@ class DistanciaHelper:
 
     @staticmethod
     def GetAllCiudades():
-        """Devolucion de todas las ciudades"""
+        """Devolución de todas las ciudades"""
         print("Indice" + "Valor".center(30, " "))
         for cap in DistanciaHelper.Capitales:
             print(repr(cap.Indice) + repr(cap.Nombre).center(40, " "))
 
     @staticmethod
     def GetDistanciaTotal(capitales: []) -> int:
+        """Calcula la distancia total recorrida"""
         distanciaTotal = 0
         for i in range(len(capitales)):
-            if ((i + 1) == len(capitales)):
+            if (i + 1) == len(capitales):
                 return distanciaTotal
             distanciaTotal += DistanciaHelper.GetDistancia(capitales[i], capitales[i + 1])
         return distanciaTotal
