@@ -36,7 +36,7 @@ class AlgoritmoGeneticoView(Toplevel):
         lblelitismo = Label(self, text="Elitismo")
         chkElitismo = Checkbutton(self, variable=self.ConfigurationViewModel.Elite, onvalue=True, offvalue=False)
 
-        lblDiversidadGenetica = Label(self, text="Diversidad genética")
+        lblDiversidadGenetica = Label(self, text="Crossover Multiple Ciclos:")
         chkDiversidadGenetica = Checkbutton(self, variable=self.ConfigurationViewModel.DiversidadGenetica,
                                             onvalue=True, offvalue=False)
 
@@ -70,11 +70,11 @@ class AlgoritmoGeneticoView(Toplevel):
         txtCantidadElites.pack()
         txtCantidadElites.place(x=230, y=130)
         lblelitismo.pack()
-        lblelitismo.place(x=160, y=160)
+        lblelitismo.place(x=10, y=160)
         chkElitismo.pack()
         chkElitismo.place(x=230, y=160)
         lblDiversidadGenetica.pack()
-        lblDiversidadGenetica.place(x=100, y=190)
+        lblDiversidadGenetica.place(x=10, y=190)
         chkDiversidadGenetica.pack()
         chkDiversidadGenetica.place(x=230, y=190)
         btnrun.pack()

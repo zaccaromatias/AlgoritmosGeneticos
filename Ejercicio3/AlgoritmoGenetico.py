@@ -1,38 +1,52 @@
 # Importamos las funciones para obtener numeros aleatorios
 from random import randint, uniform, random, shuffle
-# Para el manejo de la ruta de archivo
-from path import Path
-import os
-# Para la exportacion a excel
-import datetime
-import xlsxwriter
+
 from Ejercicio3 import DistanciaHelper
 from Ejercicio3.Cromosoma import Cromosoma
 from Ejercicio3.Crossover import Crossover
 from Ejercicio3.Poblacion import Poblacion
 from Ejercicio3.DistanciaHelper import DistanciaHelper
 
+"""Realiza el crossover usando el metodo cicliclo pero teniendo en cuenta un unico ciclo. Especificado en el apunte 
+de la catedra"""
+
 
 def AplicarCrossoverCiclico(padre1: Cromosoma, padre2: Cromosoma):
-    ciclos = []
-    hijo1 = [0 for x in range(24)]
-    hijo2 = list.copy(hijo1)
-    ciclo = []
-    i = 0
-    indicePadre1 = i
-    ciclo.append(indicePadre1)
-    indicePadre2 = -1  # <- Valor dummy para poder entrar al bucle
-    while i != indicePadre2:
-        indicePadre2 = padre2.Ciudades.index(padre1.Ciudades[indicePadre1])
-        ciclo.append(indicePadre2)
-        if ciclo[len(ciclo) - 1] == ciclo[0]:
-            ciclo.remove(ciclo[len(ciclo) - 1])  # <- Para que el primer elemento del ciclo no aparezca repetido
-            break
-        indicePadre1 = indicePadre2
-    ciclos.append(ciclo)  # <- Se agrega el ciclo actual a la lista de ciclos
+    # Arranca del primer gen(primera ciudad) del padre 1
+    indice = 0
+    indicesDeGenesQueNoCambian = []
+    # Ciudad inicial
+    ciudadInicial = padre1.Ciudades[indice]
+    # Ciudad del padre 2 en el mismo indice
+    ciudadEnPadre2 = padre2.Ciudades[indice]
+    # Agrega el indice inicial
+    indicesDeGenesQueNoCambian.append(indice)
+    # Mientras la ciudadEnPadre2 difiera de la ciudadInicial continua con el ciclo
+    while ciudadEnPadre2 != ciudadInicial:
+        # Busca el indice de la ciudadEnPadre2  en el padre 1 y devuelve lo que hay en el padre 2 en ese indice
+        indice = padre1.Ciudades.index(ciudadEnPadre2)
+        ciudadEnPadre2 = padre2.Ciudades[indice]
+        # Agrega indice que no va a cambiar
+        indicesDeGenesQueNoCambian.append(indice)
+    # Inicio arrays
+    hijo1 = []
+    hijo2 = []
+    # Loop de 0 a cantidad de ciudades.
+    # si el indice que esta recorriendo no esta en el array de indicesDeGenesQueNoCambian los invierte
+    # En caso que esten quedan las mismas
+    for i in range(len(padre1.Ciudades)):
+        if i in indicesDeGenesQueNoCambian:
+            hijo1.append(padre1.Ciudades[i])
+            hijo2.append(padre2.Ciudades[i])
+        else:
+            hijo1.append(padre2.Ciudades[i])
+            hijo2.append(padre1.Ciudades[i])
+    # Retorna una tupla de 3 valores los primeros dos lugares son los nuevos cromosomas
+    # El 3er valor es meramente informativo no tiene importancia es la cantidad de ciclos pero en este caso siempre es 1
+    return Cromosoma(hijo1), Cromosoma(hijo2), 1
 
 
-def AplicarCrossoverCiclico2(padre1: Cromosoma, padre2: Cromosoma):
+def AplicarCrossoverCiclicoMultiple(padre1: Cromosoma, padre2: Cromosoma):
     """Define los ciclos y luego aplica el crossover entre dos cromosomas padres.
     Devuelve dos cromosomas hijos y la cantidad de ciclos"""
 
@@ -125,9 +139,6 @@ class AlgoritmoGenetico:
             # Realiza la logica de elite si asi se deseo correr
             if self.Configuracion.Elite:
                 nuevaPoblacion = self.Elite(nuevaPoblacion)
-            # Variante para una mayor diversidad genetica - agregado extra solo para comparar resultados
-            if self.Configuracion.DiversidadGenetica:
-                self.DiversidadGenetica(nuevaPoblacion)
             nuevaPoblacion = self.AplicarSeleccionRuedadeRuleta(nuevaPoblacion)
             nuevaPoblacion = self.EvaluarCrossover(nuevaPoblacion)
             self.EvaluarMutacion(nuevaPoblacion)
@@ -142,21 +153,6 @@ class AlgoritmoGenetico:
             shuffle(capitales)
             poblacion.Cromosomas.append(Cromosoma(capitales))
         return poblacion
-
-    def DiversidadGenetica(self, poblacionInicial: Poblacion):
-        """Metodo extra para generar una mayor diversidad genética"""
-        similares = list(filter(lambda c: 0.105 >= FuncionFitness(c) > 0.09,
-                                poblacionInicial.Cromosomas))
-        if len(similares) >= 6:
-            for cr in similares:
-                if random() < 0.4 and not cr.EsElite:
-                    numeroBit = randint(0, len(cr.Ciudades) - 1)
-                    list1 = list(cr.Valor)
-                    if list1[numeroBit] == '0':
-                        list1[numeroBit] = '1'
-                    else:
-                        list1[numeroBit] = '0'
-                    cr.Valor = ''.join(list1)
 
     def AplicarSeleccionRuedadeRuleta(self, poblacionInicial: Poblacion) -> Poblacion:
         """Lógica de selección de cromosomas a través del método de la ruleta"""
@@ -219,10 +215,16 @@ class AlgoritmoGenetico:
             cromosoma1: Cromosoma = SeleccionarCromosomaAlAzar(poblacionInicial.Cromosomas).Clone()
             cromosoma2: Cromosoma = SeleccionarCromosomaAlAzar(poblacionInicial.Cromosomas).Clone()
             if self.AplicaCrossover():
-                hijos = AplicarCrossoverCiclico(cromosoma1, cromosoma2)
-                nuevaPoblacion.Cromosomas.append(hijos[0])
-                nuevaPoblacion.Cromosomas.append(hijos[1])
-                nuevaPoblacion.Crossovers.append(Crossover(cromosoma1, cromosoma2, hijos[0], hijos[1], hijos[2]))
+                if self.Configuracion.DiversidadGenetica:
+                    hijos = AplicarCrossoverCiclicoMultiple(cromosoma1, cromosoma2)
+                    nuevaPoblacion.Cromosomas.append(hijos[0])
+                    nuevaPoblacion.Cromosomas.append(hijos[1])
+                    nuevaPoblacion.Crossovers.append(Crossover(cromosoma1, cromosoma2, hijos[0], hijos[1], hijos[2]))
+                else:
+                    hijos = AplicarCrossoverCiclico(cromosoma1, cromosoma2)
+                    nuevaPoblacion.Cromosomas.append(hijos[0])
+                    nuevaPoblacion.Cromosomas.append(hijos[1])
+                    nuevaPoblacion.Crossovers.append(Crossover(cromosoma1, cromosoma2, hijos[0], hijos[1], hijos[2]))
             else:
                 nuevaPoblacion.Cromosomas.append(cromosoma1.Clone())
                 nuevaPoblacion.Cromosomas.append(cromosoma2.Clone())
@@ -251,18 +253,6 @@ class AlgoritmoGenetico:
             if self.AplicaMutacion():
                 poblacionInicial.Mutaciones.append(cromosoma.Mutar())
 
-    # Muestra en pantalla los resultados de las iteraciones y el maximo obtenido
-    def Print(self):
-        # self.PrintIteraciones()
-        self.PrintMaximo()
-
-    # Muestra en pantalla el maximo de todas las poblaciones
-    def PrintMaximo(self):
-        print("******* Maximo Calculado: ")
-        maximo = self.GetMejorCromosomaDeTodasLasPoblaciones()
-        print("- Iteracion: " + str(maximo[0]) + "- Objetivo: " + str(
-            FuncionObjetivo(maximo[1])) + "- Cromosoma: " + str(maximo[1].Distancia()))
-
     # Devuelve el cromosoma con el valor objetivo maximo obtenido
     def GetMejorCromosomaDeTodasLasPoblaciones(self):
         mejores = []
@@ -274,172 +264,3 @@ class AlgoritmoGenetico:
         mejorValor = max(FuncionFitness(cromosoma[1]) for cromosoma in mejores)
         mejorDeLosMejores = list(filter(lambda c: FuncionFitness(c[1]) == mejorValor, mejores))[0]
         return mejorDeLosMejores
-
-    # Muestra en pantalla valores de las iteraciones
-    def PrintIteraciones(self):
-        iteracion = 1
-        for poblacion in self.Poblaciones:
-            print("*******Poblacion Numero: " + str(iteracion))
-            poblacion.Print(FuncionObjetivo, FuncionFitness)
-            iteracion = iteracion + 1
-
-    # ----------------------------------------------------------------------------------------------------------------------
-
-    # Exporta a excel los resultados, iteraciones, maximos, minimos, promedios junto a la grafica
-    def ExportToExcel(self):
-        iteracion = 1
-        dataResultados = []
-        dataIteraciones = []
-        dataCrosovers = []
-        dataMutacion = []
-        # Carga las diferentes listas con los correspondiente valores
-        for poblacion in self.Poblaciones:
-            self.CargarDatosDeIteraciones(dataIteraciones, iteracion, poblacion)
-            self.CargarDatosCrossovers(dataCrosovers, iteracion, poblacion)
-            self.CargarDatosMutaciones(dataMutacion, iteracion, poblacion)
-            self.CargarDatosResultados(dataResultados, iteracion, poblacion)
-            iteracion += 1
-        # Genera un archivo xlsx con la siguiente nomenclatura YYYY-mm-dd-HH-MM-S.xlsx y lo genera dentro de la carpeta Excels
-        name = str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")) + '.xlsx'
-        pathExcels = "Excels/" + name
-        workbook = xlsxwriter.Workbook(pathExcels)
-        bold = workbook.add_format({'bold': 1})
-        # Genera los sheet con cada uno de los datos
-        self.CargarSheetDeResultados(workbook, dataResultados, bold)
-        self.CargarSheetDeIteraciones(workbook, dataIteraciones, bold)
-        self.CargarSheetCrossovers(workbook, dataCrosovers, bold)
-        self.CargarSheetMutaciones(workbook, dataMutacion, bold)
-        self.CargarSheetConfiguracion(workbook, bold)
-        workbook.close()
-        fullPath = Path(pathExcels).abspath()
-        os.startfile(fullPath, 'open')
-
-    def CargarSheetMutaciones(self, workbook, dataMutacion, bold):
-        worksheetMutaciones = workbook.add_worksheet("Mutaciones")
-        worksheetMutaciones.write('A1', 'Iteracion', bold)
-        worksheetMutaciones.write('B1', 'Original', bold)
-        worksheetMutaciones.write('C1', 'Mutante', bold)
-        worksheetMutaciones.write('D1', 'Indice Cambiado', bold)
-        worksheetMutaciones.add_table(
-            'A1:D' + str(len(dataMutacion) + 1),
-            {'data': dataMutacion,
-             'columns': [
-                 {'header': 'Iteracion'},
-                 {'header': 'Original'},
-                 {'header': 'Mutante'},
-                 {'header': 'Indice Cambiado'}
-             ]})
-
-    def CargarSheetCrossovers(self, workbook, dataCrosovers, bold):
-        worksheetCrossovers = workbook.add_worksheet("Crossovers")
-        worksheetCrossovers.write('A1', 'Iteracion', bold)
-        worksheetCrossovers.write('B1', 'Progenitor 1', bold)
-        worksheetCrossovers.write('C1', 'Progenitor 2', bold)
-        worksheetCrossovers.write('D1', 'Hijo 1', bold)
-        worksheetCrossovers.write('E1', 'Hijo 2', bold)
-        worksheetCrossovers.write('F1', 'Unidad Corte', bold)
-        worksheetCrossovers.add_table(
-            'A1:F' + str(len(dataCrosovers) + 1),
-            {'data': dataCrosovers,
-             'columns': [
-                 {'header': 'Iteracion'},
-                 {'header': 'Progenitor 1'},
-                 {'header': 'Progenitor 2'},
-                 {'header': 'Hijo 1'},
-                 {'header': 'Hijo 2'},
-                 {'header': 'Unidad De Corte'}
-             ]})
-
-    def CargarSheetConfiguracion(self, workbook, bold):
-        worksheetConfiguracion = workbook.add_worksheet("Configuracion")
-        worksheetConfiguracion.write(0, 0, "Probabilidad Crossover:", bold)
-        worksheetConfiguracion.write_number(0, 1, self.Configuracion.ProbabilidadCrossover)
-        worksheetConfiguracion.write(1, 0, "Probabilidad Mutacion:", bold)
-        worksheetConfiguracion.write_number(1, 1, self.Configuracion.ProbabilidadMutacion)
-        worksheetConfiguracion.write(2, 0, "Cantidad Poblacion Inicial:", bold)
-        worksheetConfiguracion.write_number(2, 1, self.Configuracion.CantidadPoblacionInicial)
-        worksheetConfiguracion.write(3, 0, "Iteraciones:", bold)
-        worksheetConfiguracion.write_number(3, 1, self.Configuracion.Iteraciones)
-        worksheetConfiguracion.write(4, 0, "Elitismo:", bold)
-        worksheetConfiguracion.write(4, 1, str(self.Configuracion.Elite))
-
-    def CargarSheetDeResultados(self, workbook, dataResultados, bold):
-        worksheetResultados = workbook.add_worksheet("Resultados")
-        worksheetResultados.write('A1', 'Nro Ciclo.', bold)
-        worksheetResultados.write('B1', 'Minimo', bold)
-        worksheetResultados.write('C1', 'Maximo', bold)
-        worksheetResultados.write('D1', 'Valor Cromosoma(Maximo)', bold)
-        worksheetResultados.write('E1', 'Promedio', bold)
-        worksheetResultados.add_table('A1:E' + str(self.Configuracion.Iteraciones + 1), {'data': dataResultados,
-                                                                                         'columns': [
-                                                                                             {
-                                                                                                 'header': 'Nro De Ciclo.'},
-                                                                                             {'header': 'Minimo'},
-                                                                                             {'header': 'Maximo'},
-                                                                                             {
-                                                                                                 'header': 'Cromosoma(Maximo)'},
-                                                                                             {'header': 'Promedio'}
-                                                                                         ]})
-        maximo = self.GetMejorCromosomaDeTodasLasPoblaciones()
-        textoMaximo = "- Iteracion: " + str(maximo[0]) + "- Objetivo: " + str(
-            FuncionObjetivo(maximo[1])) + "- Cromosoma: " + maximo[1].Valor
-        worksheetResultados.write('F1', 'MAXIMO:', bold)
-        worksheetResultados.write('F2', textoMaximo, bold)
-        chartResultados = workbook.add_chart({'type': 'line'})
-        chartResultados.add_series(
-            {'values': '=Resultados!$B$2:$B$' + str(self.Configuracion.Iteraciones + 1), 'name': 'Minimo'})
-        chartResultados.add_series(
-            {'values': '=Resultados!$C$2:$C$' + str(self.Configuracion.Iteraciones + 1), 'name': 'Maximo'})
-        chartResultados.add_series(
-            {'values': '=Resultados!$E$2:$E$' + str(self.Configuracion.Iteraciones + 1), 'name': 'Promedio'})
-
-        chartResultados.set_x_axis({'name': 'Iteraciones'})
-        chartResultados.set_y_axis({'name': 'Valor'})
-        worksheetResultados.insert_chart('F3', chartResultados)
-
-    def CargarSheetDeIteraciones(self, workbook, dataIteraciones, bold):
-        worksheetIteraciones = workbook.add_worksheet("Iteraciones")
-        worksheetIteraciones.write('A1', 'Iteracion', bold)
-        worksheetIteraciones.write('B1', 'Valor', bold)
-        worksheetIteraciones.write('C1', 'Objetivo', bold)
-        worksheetIteraciones.write('D1', 'Fitness', bold)
-        worksheetIteraciones.write('E1', 'Elite', bold)
-        worksheetIteraciones.add_table(
-            'A1:E' + str(self.Configuracion.Iteraciones * self.Configuracion.CantidadPoblacionInicial + 1),
-            {'data': dataIteraciones,
-             'columns': [
-                 {'header': 'Iteracion'},
-                 {'header': 'Valor'},
-                 {'header': 'Objetivo'},
-                 {'header': 'Fitness'},
-                 {'header': 'Elite'}]})
-
-    def CargarDatosResultados(self, dataResultados, iteracion, poblacion):
-        maximo = poblacion.Maximo(FuncionObjetivo)
-        minimo = poblacion.Minimo(FuncionObjetivo)
-        dataResultados.append(
-            [iteracion, FuncionObjetivo(minimo), FuncionObjetivo(maximo), maximo.Valor,
-             poblacion.Promedio(FuncionObjetivo)])
-
-    def CargarDatosMutaciones(self, dataMutacion, iteracion, poblacion):
-        for mutacion in poblacion.Mutaciones:
-            dataMutacion.append(
-                [iteracion, mutacion.Original.Valor,
-                 mutacion.Mutante.Valor, mutacion.IndiceBitCambiado])
-
-    def CargarDatosCrossovers(self, dataCrosovers, iteracion, poblacion):
-        for crossover in poblacion.Crossovers:
-            dataCrosovers.append([iteracion, crossover.Projenitor1.Valor,
-                                  crossover.Projenitor2.Valor,
-                                  crossover.Hijo1.Valor,
-                                  crossover.Hijo2.Valor,
-                                  crossover.Unidades])
-
-    def CargarDatosDeIteraciones(self, dataIteraciones, iteracion, poblacion):
-        for cromosoma in poblacion.Cromosomas:
-            elite = "Sí"
-            if not cromosoma.EsElite:
-                elite = "No"
-            fila = [iteracion, cromosoma.Valor, FuncionObjetivo(cromosoma),
-                    FuncionFitness(cromosoma), elite]
-            dataIteraciones.append(fila)
