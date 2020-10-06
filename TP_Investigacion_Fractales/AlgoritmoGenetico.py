@@ -1,5 +1,11 @@
 # Importamos las funciones para obtener numeros aleatorios
 from random import randint, uniform, random
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+from scipy import ndimage, optimize
+import numpy as np
+import math
+from TP_Investigacion_Fractales.compression import *
 # Para el manejo de la ruta de archivo
 from path import Path
 import os
@@ -8,10 +14,10 @@ import os
 import datetime
 import xlsxwriter
 
-from Ejercicio1.Cromosoma import Cromosoma
-from Ejercicio1.Crossover import Crossover
-from Ejercicio1.Mutacion import Mutacion
-from Ejercicio1.Poblacion import Poblacion
+from TP_Investigacion_Fractales.Cromosoma import Cromosoma
+from TP_Investigacion_Fractales.Crossover import Crossover
+from TP_Investigacion_Fractales.Mutacion import Mutacion
+from TP_Investigacion_Fractales.Poblacion import Poblacion
 
 
 # Logica del crossover
@@ -93,42 +99,28 @@ class AlgoritmoGenetico:
             # Realiza la logica de elite si asi se deseo correr
             if self.Configuracion.Elite:
                 nuevaPoblacion = self.Elite(nuevaPoblacion)
-            # Variante para una mayor diversidad genetica - agregado extra solo para comparar resultados
-            if self.Configuracion.DiversidadGenetica:
-                self.DiversidadGenetica(nuevaPoblacion)
-            nuevaPoblacion = self.Seleccionar(nuevaPoblacion)
+            nuevaPoblacion = self.AplicarSeleccionRuedadeRuleta(nuevaPoblacion)
             nuevaPoblacion = self.EvaluarCrossover(nuevaPoblacion)
             self.EvaluarMutacion(nuevaPoblacion)
             self.Poblaciones.append(nuevaPoblacion)
 
-    # Genera la poblacion inicial generando cromosomas con valores binarios totalmente aleatorios
     def GetPoblacionInicial(self) -> Poblacion:
+        """Genera y devuelve la poblacion inicial dividiendo a la imagen en n bloques del mismo tamaño y guardando
+           información relevante a ellos en cromosomas."""
         poblacion = Poblacion()
-        for i in range(pow(self.Configuracion.CantidadPoblacionInicial, 2)):
-            numeroRandom = ""
-            for j in range(self.dominioFinal):
-                numeroRandom += str(randint(0, 1))
-            poblacion.Cromosomas.append(Cromosoma(numeroRandom))
+        img = mpimg.imread('monkey.gif')
+        if self.Configuracion.IsRGB:
+            for x in range(self.Configuracion.CantidadPoblacionInicial):
+                for y in range(self.Configuracion.CantidadPoblacionInicial):
+                    poblacion.Cromosomas.append(Cromosoma((img[0]/self.Configuracion.CantidadPoblacionInicial)*x,
+                                                          (img[1]/self.Configuracion.CantidadPoblacionInicial)*y))
+        else:
+            for x in range(self.Configuracion.CantidadPoblacionInicial):
+                for y in range(self.Configuracion.CantidadPoblacionInicial):
+                    poblacion.Cromosomas.append(Cromosoma((img[0]/self.Configuracion.CantidadPoblacionInicial)*x,
+                                                          (img[1]/self.Configuracion.CantidadPoblacionInicial)*y))
+
         return poblacion
-
-    # Metodo extra para generar una mayor diversidad genetica
-    def DiversidadGenetica(self, poblacionInicial: Poblacion):
-        similares = list(filter(lambda c: 0.105 >= FuncionFitness(poblacionInicial, c) > 0.09,
-                                poblacionInicial.Cromosomas))
-        if len(similares) >= 6:
-            for cr in similares:
-                if random() < 0.4 and not cr.EsElite:
-                    numeroBit = randint(0, len(cr.Valor) - 1)
-                    list1 = list(cr.Valor)
-                    if list1[numeroBit] == '0':
-                        list1[numeroBit] = '1'
-                    else:
-                        list1[numeroBit] = '0'
-                    cr.Valor = ''.join(list1)
-
-    # Llama a aplicar seleccion ruleta
-    def Seleccionar(self, poblacionInicial: Poblacion) -> Poblacion:
-        return self.AplicarSeleccionRuedadeRuleta(poblacionInicial)
 
     # Logica de seleccion de cromosomas a traves del metodo de la ruleta
     # Segun el fitnes de cada cromosomas le seteamos los valores Minimos y maximos de la porcion que ocuparian
@@ -139,7 +131,7 @@ class AlgoritmoGenetico:
         porciones = []
         nuevaPoblacion = Poblacion()
 
-        elite = list(filter(lambda c: c.EsElite == True, poblacionInicial.Cromosomas))
+        elite = list(filter(lambda c: c.EsElite is True, poblacionInicial.Cromosomas))
         for cromosomaElite in elite:
             nuevaPoblacion.Cromosomas.append(cromosomaElite.Clone())
 

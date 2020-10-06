@@ -83,8 +83,8 @@ def generate_all_transformed_blocks(img, source_size, destination_size, step):
 
 
 def compress(img, source_size, destination_size, step):
-    """Por cada bloque destino, se optimizan el brillo y contraste,
-    se comparan todos los bloques transformados y se guarda el mejor. Retorna la lista de mejores transformaciones"""
+    """Por cada bloque destino, se optimizan el brillo y contraste, se comparan todos los bloques transformados
+       y se guarda el mejor. Retorna la lista de mejores transformaciones"""
     transformations = []
     transformed_blocks = generate_all_transformed_blocks(img, source_size, destination_size, step)
     i_count = img.shape[0] // destination_size
