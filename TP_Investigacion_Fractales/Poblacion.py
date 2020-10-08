@@ -1,4 +1,4 @@
-from Ejercicio1.Cromosoma import Cromosoma
+from TP_Investigacion_Fractales.Cromosoma import Cromosoma
 
 
 # Clase que representa una poblacion con su lista de cromosomas

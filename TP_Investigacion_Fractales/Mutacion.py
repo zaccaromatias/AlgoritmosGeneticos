@@ -1,4 +1,4 @@
-from Ejercicio1.Cromosoma import Cromosoma
+from TP_Investigacion_Fractales.Cromosoma import Cromosoma
 
 
 # Clase meramente informativa para saber las mutaciones realizadas por la aplicacion

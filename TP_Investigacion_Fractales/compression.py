@@ -109,7 +109,7 @@ def compress(img, source_size, destination_size, step):
 
 
 def decompress(transformations, source_size, destination_size, step, nb_iter=8):
-    """Aplica la contracción f una cantidad aleatoria de veces (entre 0 y 256)."""
+    """???"""
     factor = source_size // destination_size
     height = len(transformations) * destination_size
     width = len(transformations[0]) * destination_size
@@ -129,6 +129,27 @@ def decompress(transformations, source_size, destination_size, step, nb_iter=8):
         cur_img = np.zeros((height, width))
     return iterations
 
+
+def decompress_GA(cromosomas, source_size, destination_size, step, nb_iter=8):
+    """???"""
+    factor = source_size // destination_size
+    height = cromosomas[0].X * destination_size
+    width = len(cromosomas) * destination_size
+    iterations = [np.random.randint(0, 256, (height, width))]
+    cur_img = np.zeros((height, width))
+    for i_iter in range(nb_iter):
+        print(i_iter)
+        for i in range(len(cromosomas)):
+            for j in range(len(cromosomas[i])):
+                # Apply transform
+                k, l, flip, angle, contrast, brightness = cromosomas[i][j]
+                S = reduce(iterations[-1][k * step:k * step + source_size, l * step:l * step + source_size], factor)
+                D = apply_transformation(S, flip, angle, contrast, brightness)
+                cur_img[i * destination_size:(i + 1) * destination_size,
+                j * destination_size:(j + 1) * destination_size] = D
+        iterations.append(cur_img)
+        cur_img = np.zeros((height, width))
+    return iterations
 
 # ----------------------------------------------------------------------------------------------------------------------
 #                                                   RGB (HEURÍSTICA)
@@ -203,7 +224,7 @@ def get_greyscale_image(img):
 def test_greyscale():
     img = mpimg.imread('monkey.gif')
     img = get_greyscale_image(img)
-    img = reduce(img, 4)
+    # img = reduce(img, 4)
     plt.figure()
     plt.imshow(img, cmap='gray', interpolation='none')
     transformations = compress(img, 8, 4, 8)
@@ -226,24 +247,42 @@ def test_rgb():
 
 
 def test_ga():
-    porcentajeCrossOver = float(input("Porcentaje Crossover (float): "))
-    porcentajeMutacion = float(input("Porcentaje Mutacion (float): "))
-    cantidadInicialPoblacion = int(input("Cantidad Inicial Poblacion (int): "))
-    iteraciones = int(input("Cantidad Iteraciones (int): "))
-    diversidadBool = input("Diversidad genética? (1-Sí/otro-No): ")
-    if diversidadBool == "1":
-        diversidadGenetica = True
+    porcentajeCrossOver = 0.75  # float(input("Porcentaje Crossover (float): "))
+    porcentajeMutacion = 0.00  # float(input("Porcentaje Mutacion (float): "))
+    cantidadInicialPoblacion = 20  # int(input("Cantidad Inicial Poblacion (int): "))
+    iteraciones = 100  # int(input("Cantidad Iteraciones (int): "))
+    colorBool = "0"  # input("Color? (1-Sí/otro-No): ")
+    if colorBool == "1":
+        color = True
     else:
-        diversidadGenetica = False
-    eliteBool = input("Elitismo? (1-Sí/otro-No): ")
+        color = False
+    eliteBool = "1"  # input("Elitismo? (1-Sí/otro-No): ")
     if eliteBool == "1":
         elite = True
     else:
         elite = False
     configuracion = Configuracion(porcentajeCrossOver, porcentajeMutacion, cantidadInicialPoblacion, iteraciones,
-                                  elite, diversidadGenetica)
+                                  elite, color)
     algoritmo = AlgoritmoGenetico(configuracion)
-    algoritmo.Run()
+    cromosomas = algoritmo.Run()
+
+    if color:
+        img = mpimg.imread('lena.gif')
+        plt.figure()
+        plt.subplot(121)
+        plt.imshow(np.array(img).astype(np.uint8), interpolation='none')
+        retrieved_img = decompress_rgb(cromosomas, 8, 4, 8)
+        plt.subplot(122)
+        plt.imshow(retrieved_img.astype(np.uint8), interpolation='none')
+        plt.show()
+    else:
+        img = mpimg.imread('monkey.gif')
+        img = get_greyscale_image(img)
+        plt.figure()
+        plt.imshow(img, cmap='gray', interpolation='none')
+        iterations = decompress_GA(cromosomas, 8, 4, 8)
+        plot_iterations(iterations, img)
+        plt.show()
 
 
 if __name__ == '__main__':
@@ -253,12 +292,11 @@ if __name__ == '__main__':
                       "2- Heurística RGB\n"
                       "3- AG\n"
                       "Opción: ")
-        if Input == 1:
+        if Input == '1':
             test_greyscale()
-        elif Input == 2:
+        elif Input == '2':
             test_rgb()
-        elif Input == 3:
-            break
+        elif Input == '3':
             test_ga()
         else:
             print("Opción inválida. Intente otra vez.")
