@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-from scipy import ndimage, optimize
+from scipy import ndimage
 import numpy as np
 import math
 from TP_Investigacion_Fractales.AlgoritmoGenetico import AlgoritmoGenetico
@@ -130,23 +130,24 @@ def decompress(transformations, source_size, destination_size, step, nb_iter=8):
     return iterations
 
 
-def decompress_GA(cromosomas, source_size, destination_size, step, nb_iter=8):
+def decompress_GA(crList, source_size, destination_size, step, nb_iter=8):
     """???"""
     factor = source_size // destination_size
-    height = cromosomas[0].X * destination_size
-    width = len(cromosomas) * destination_size
+    height = 256  # crList[len(crList) - 1].X * destination_size
+    width = 256  # crList[len(crList) - 1].Y * destination_size
     iterations = [np.random.randint(0, 256, (height, width))]
     cur_img = np.zeros((height, width))
     for i_iter in range(nb_iter):
         print(i_iter)
-        for i in range(len(cromosomas)):
-            for j in range(len(cromosomas[i])):
-                # Apply transform
-                k, l, flip, angle, contrast, brightness = cromosomas[i][j]
-                S = reduce(iterations[-1][k * step:k * step + source_size, l * step:l * step + source_size], factor)
-                D = apply_transformation(S, flip, angle, contrast, brightness)
-                cur_img[i * destination_size:(i + 1) * destination_size,
-                j * destination_size:(j + 1) * destination_size] = D
+        for i in range(len(crList)):
+            # Apply transform
+            k, l, flip, angle, contrast, brightness = crList[i].X, crList[i].Y, crList[i].IsometricFlip[0], \
+                                                      crList[i].IsometricFlip[1], crList[i].Contrast, \
+                                                      crList[i].Brightness
+            S = reduce(iterations[-1][k:k + source_size, l:l + source_size], factor)
+            D = apply_transformation(S, flip, angle, contrast, brightness)
+            cur_img[crList[i].X:crList[i].X + destination_size,
+                    crList[i].Y:crList[i].Y + destination_size] = D
         iterations.append(cur_img)
         cur_img = np.zeros((height, width))
     return iterations
@@ -160,7 +161,7 @@ def extract_rgb(img):
     return img[:, :, 0], img[:, :, 1], img[:, :, 2]
 
 
-def assemble_rbg(img_r, img_g, img_b):
+def assemble_rgb(img_r, img_g, img_b):
     shape = (img_r.shape[0], img_r.shape[1], 1)
     return np.concatenate((np.reshape(img_r, shape), np.reshape(img_g, shape),
                            np.reshape(img_b, shape)), axis=2)
@@ -173,7 +174,7 @@ def reduce_rgb(img, factor):
     img_r = reduce(img_r, factor)
     img_g = reduce(img_g, factor)
     img_b = reduce(img_b, factor)
-    return assemble_rbg(img_r, img_g, img_b)
+    return assemble_rgb(img_r, img_g, img_b)
 
 
 def compress_rgb(img, source_size, destination_size, step):
@@ -189,7 +190,7 @@ def decompress_rgb(transformations, source_size, destination_size, step, nb_iter
     img_r = decompress(transformations[0], source_size, destination_size, step, nb_iter)[-1]
     img_g = decompress(transformations[1], source_size, destination_size, step, nb_iter)[-1]
     img_b = decompress(transformations[2], source_size, destination_size, step, nb_iter)[-1]
-    return assemble_rbg(img_r, img_g, img_b)
+    return assemble_rgb(img_r, img_g, img_b)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -224,7 +225,7 @@ def get_greyscale_image(img):
 def test_greyscale():
     img = mpimg.imread('monkey.gif')
     img = get_greyscale_image(img)
-    # img = reduce(img, 4)
+    img = reduce(img, 4)
     plt.figure()
     plt.imshow(img, cmap='gray', interpolation='none')
     transformations = compress(img, 8, 4, 8)
@@ -247,10 +248,10 @@ def test_rgb():
 
 
 def test_ga():
-    porcentajeCrossOver = 0.75  # float(input("Porcentaje Crossover (float): "))
-    porcentajeMutacion = 0.00  # float(input("Porcentaje Mutacion (float): "))
-    cantidadInicialPoblacion = 20  # int(input("Cantidad Inicial Poblacion (int): "))
-    iteraciones = 100  # int(input("Cantidad Iteraciones (int): "))
+    porcentajeCrossOver = 0.5  # float(input("Porcentaje Crossover (float): "))
+    porcentajeMutacion = 0.05  # float(input("Porcentaje Mutacion (float): "))
+    cantidadInicialPoblacion = 256*256//2  # int(input("Cantidad Inicial Poblacion (int): "))
+    iteraciones = 5  # int(input("Cantidad Iteraciones (int): "))
     colorBool = "0"  # input("Color? (1-Sí/otro-No): ")
     if colorBool == "1":
         color = True
@@ -281,17 +282,18 @@ def test_ga():
         plt.figure()
         plt.imshow(img, cmap='gray', interpolation='none')
         iterations = decompress_GA(cromosomas, 8, 4, 8)
-        plot_iterations(iterations, img)
+        plt.figure()
+        plt.imshow(iterations[1], cmap='gray', vmin=0, vmax=255, interpolation='none')
         plt.show()
 
 
 if __name__ == '__main__':
     whileCond = True
     while whileCond:
-        Input = input("1- Heurística GS\n"
-                      "2- Heurística RGB\n"
-                      "3- AG\n"
-                      "Opción: ")
+        Input = '3'  # input("1- Heurística GS\n"
+                   #  "2- Heurística RGB\n"
+                   #  "3- AG\n"
+                   #  "Opción: ")
         if Input == '1':
             test_greyscale()
         elif Input == '2':
