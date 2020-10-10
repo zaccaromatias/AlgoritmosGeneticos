@@ -7,6 +7,8 @@ class Cromosoma:
     def __init__(self, x: int, y: int, dir: int, ang: int):
         self.X = x
         self.Y = y
+        self.RangeX = 0
+        self.RangeY = 0
         self.IsometricFlip = dir, ang
         self.Contrast = 0.0
         self.Brightness = 0.0
@@ -35,4 +37,6 @@ class Cromosoma:
         cromosoma.Brightness = self.Brightness
         cromosoma.EsElite = self.EsElite
         cromosoma.PorcionRuleta = self.PorcionRuleta
+        cromosoma.RangeX = self.RangeX
+        cromosoma.RangeY = self.RangeY
         return cromosoma

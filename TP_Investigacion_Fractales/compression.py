@@ -130,26 +130,33 @@ def decompress(transformations, source_size, destination_size, step, nb_iter=8):
     return iterations
 
 
-def decompress_GA(crList, source_size, destination_size, step, nb_iter=8):
+def decompress_GA(poblaciones, source_size, destination_size, step, nb_iter=8):
     """???"""
     factor = source_size // destination_size
-    height = 256  # crList[len(crList) - 1].X * destination_size
-    width = 256  # crList[len(crList) - 1].Y * destination_size
+    height = 256  # len(crList) * destination_size
+    width = 256  # len(crList) * destination_size
     iterations = [np.random.randint(0, 256, (height, width))]
     cur_img = np.zeros((height, width))
     for i_iter in range(nb_iter):
         print(i_iter)
-        for i in range(len(crList)):
-            # Apply transform
-            k, l, flip, angle, contrast, brightness = crList[i].X, crList[i].Y, crList[i].IsometricFlip[0], \
-                                                      crList[i].IsometricFlip[1], crList[i].Contrast, \
-                                                      crList[i].Brightness
-            S = reduce(iterations[-1][k:k + source_size, l:l + source_size], factor)
-            D = apply_transformation(S, flip, angle, contrast, brightness)
-            cur_img[crList[i].X:crList[i].X + destination_size,
-                    crList[i].Y:crList[i].Y + destination_size] = D
-        iterations.append(cur_img)
-        cur_img = np.zeros((height, width))
+        for i in range(len(poblaciones)):
+            for j in range(len(poblaciones[1].Cromosomas)):
+                # Apply transform
+                k, l, flip, angle, contrast, brightness = poblaciones[i].Cromosomas[j].X, \
+                                                          poblaciones[i].Cromosomas[j].Y, \
+                                                          poblaciones[i].Cromosomas[j].IsometricFlip[0], \
+                                                          poblaciones[i].Cromosomas[j].IsometricFlip[1], \
+                                                          poblaciones[i].Cromosomas[j].Contrast, \
+                                                          poblaciones[i].Cromosomas[j].Brightness
+                S = iterations[-1][k:k + width//source_size, l:l + height//source_size]
+                # S = reduce(iterations[-1][k * step:k * step + source_size, l * step:l * step + source_size], factor)
+                D = apply_transformation(S, flip, angle, contrast, brightness)
+                cur_img[poblaciones[i].Cromosomas[j].X:poblaciones[i].Cromosomas[j].X + width // source_size,
+                        poblaciones[i].Cromosomas[j].Y:poblaciones[i].Cromosomas[j].Y + height // source_size] = D
+                # cur_img[crList[i].RangeX:crList[i].RangeX * height // destination_size,
+                #         crList[i].RangeY:crList[i].RangeY * width // destination_size] = D
+            iterations.append(cur_img)
+            cur_img = np.zeros((height, width))
     return iterations
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -248,10 +255,13 @@ def test_rgb():
 
 
 def test_ga():
-    porcentajeCrossOver = 0.5  # float(input("Porcentaje Crossover (float): "))
-    porcentajeMutacion = 0.05  # float(input("Porcentaje Mutacion (float): "))
-    cantidadInicialPoblacion = 256*256//2  # int(input("Cantidad Inicial Poblacion (int): "))
-    iteraciones = 5  # int(input("Cantidad Iteraciones (int): "))
+    porcentajeCrossOver = 0.75  # float(input("Porcentaje Crossover (float): "))
+    porcentajeMutacion = 0  # float(input("Porcentaje Mutacion (float): "))
+    # cantidadInicialPoblacion = 256*256//2  # int(input("Cantidad Inicial Poblacion (int): "))
+    iteraciones = 30  # int(input("Cantidad Iteraciones (int): "))
+    bloques = 8
+    cantElite = 12
+    compresion = 0.5
     colorBool = "0"  # input("Color? (1-Sí/otro-No): ")
     if colorBool == "1":
         color = True
@@ -262,8 +272,8 @@ def test_ga():
         elite = True
     else:
         elite = False
-    configuracion = Configuracion(porcentajeCrossOver, porcentajeMutacion, cantidadInicialPoblacion, iteraciones,
-                                  elite, color)
+    configuracion = Configuracion(porcentajeCrossOver, porcentajeMutacion, cantElite, bloques, compresion,
+                                  iteraciones, elite, color)
     algoritmo = AlgoritmoGenetico(configuracion)
     cromosomas = algoritmo.Run()
 
@@ -281,9 +291,10 @@ def test_ga():
         img = get_greyscale_image(img)
         plt.figure()
         plt.imshow(img, cmap='gray', interpolation='none')
-        iterations = decompress_GA(cromosomas, 8, 4, 8)
+        iterations = decompress_GA(cromosomas, bloques, bloques//int(1//(1-compresion)), bloques)
+        # plot_iterations(iterations)
         plt.figure()
-        plt.imshow(iterations[1], cmap='gray', vmin=0, vmax=255, interpolation='none')
+        plt.imshow(iterations[len(iterations)-1], cmap='gray', vmin=0, vmax=255, interpolation='none')
         plt.show()
 
 
@@ -291,9 +302,9 @@ if __name__ == '__main__':
     whileCond = True
     while whileCond:
         Input = '3'  # input("1- Heurística GS\n"
-                   #  "2- Heurística RGB\n"
-                   #  "3- AG\n"
-                   #  "Opción: ")
+                     #  "2- Heurística RGB\n"
+                     #  "3- AG\n"
+                     #  "Opción: ")
         if Input == '1':
             test_greyscale()
         elif Input == '2':
