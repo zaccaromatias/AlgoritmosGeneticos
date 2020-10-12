@@ -2,12 +2,14 @@ from TP_Investigacion_Fractales.AlgoritmoGenetico import AlgoritmoGenetico
 from TP_Investigacion_Fractales.Configuracion import Configuracion
 import matplotlib.image as mpimg
 import time
+import os
 
 from TP_Investigacion_Fractales.ImagenHelper import *
 
 
 def test_ga(configuracion: Configuracion, ventana=None):
     seconds = time.time()
+
     algoritmo = AlgoritmoGenetico(configuracion)
     algoritmo.Run(ventana)
     mejorCromosoma = algoritmo.GetMejorCromosoma()
@@ -28,7 +30,9 @@ def test_ga(configuracion: Configuracion, ventana=None):
     print('Tardo:' + repr(lastseconds - seconds) + 'Segundos')
     plt.title('Ultima Iteracion - Tardo: ' + repr(lastseconds - seconds) + 'Segundos')
     # mpimg.imsave('dolly_Zero_fractal_.jpg', iterations[0], cmap='gray', vmin=0, vmax=255, interpolation='none')
-    mpimg.imsave('dolly_Ultima_fractal_.jpg', iterations[len(iterations) - 1], cmap='gray', vmin=0, vmax=255)
+
+    extension = os.path.splitext(configuracion.ImagePath)[-1]
+    mpimg.imsave('Resultado_AlgoritmoGenetico' + extension, iterations[len(iterations) - 1], cmap='gray', vmin=0, vmax=255)
     plt.show()
 
 

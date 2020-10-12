@@ -1,5 +1,6 @@
 import matplotlib.image as mpimg
 import time
+import os
 
 from TP_Investigacion_Fractales.Configuracion import Configuracion
 from TP_Investigacion_Fractales.ImagenHelper import *
@@ -110,6 +111,8 @@ def test_greyscale(configuracion: Configuracion):
     lastseconds = time.time()
     print('Tardo:' + repr(lastseconds - seconds) + 'Segundos')
     plt.title('Ultima Iteracion - Tardo: ' + repr(lastseconds - seconds) + 'Segundos')
+    extension = os.path.splitext(configuracion.ImagePath)[-1]
+    mpimg.imsave('Resultado_Heuristico' + extension, iterations[len(iterations) - 1], cmap='gray', vmin=0, vmax=255)
     plt.show()
 
 
