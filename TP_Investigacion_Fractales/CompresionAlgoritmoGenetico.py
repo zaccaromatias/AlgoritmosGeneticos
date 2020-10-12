@@ -33,14 +33,14 @@ def test_ga(configuracion: Configuracion, ventana=None):
 
 
 def decompress(transformations, source_size, destination_size, step, nb_iter=8):
-    """???"""
+    print('Recontruyendo imagen a partir de las transformaciones obtenidas')
     factor = source_size // destination_size
     height = len(transformations) * destination_size
     width = len(transformations[0]) * destination_size
     iterations = [np.random.randint(0, 256, (height, width))]
     cur_img = np.zeros((height, width))
     for i_iter in range(nb_iter):
-        print(i_iter)
+        print('Iteracion para contruir imagen: ' + repr(i_iter) + '/' + repr(nb_iter))
         for i in range(len(transformations)):
             for j in range(len(transformations[i])):
                 # Apply transform

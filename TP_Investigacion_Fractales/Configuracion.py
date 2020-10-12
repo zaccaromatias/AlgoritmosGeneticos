@@ -5,7 +5,7 @@ import tkinter as tk
 class Configuracion:
     def __init__(self, probabilidadCrossover: float, probabilidadMutacion: float, numeroDeCromosomas: int,
                  cantidadElites: int, bloques: int,
-                 iteraciones: int, elite: bool, color: bool, step: int):
+                 iteraciones: int, elite: bool, color: bool, step: int, imagePath: str):
         self.ProbabilidadCrossover = probabilidadCrossover
         self.ProbabilidadMutacion = probabilidadMutacion
         self.Source_Size = bloques
@@ -17,11 +17,11 @@ class Configuracion:
         self.Elite = elite
         self.IsRGB = color
         self.Destination_Size = 2
-        self.ImagePath = 'doly_256.jpg'
+        self.ImagePath = imagePath
 
 
 class ConfigurationViewModel:
-    def __init__(self):
+    def __init__(self, imagePath: str):
         self.ProbabilidadCrossover = tk.StringVar(value=0.75)
         self.ProbabilidadMutacion = tk.StringVar(value=0.05)
         self.NumeroCromosomasPoblacion = tk.StringVar(value=64)
@@ -31,6 +31,7 @@ class ConfigurationViewModel:
         self.Bloques = tk.StringVar(value=4)
         self.Step = tk.StringVar(value=4)
         self.IsRGB = tk.BooleanVar(value=False)
+        self.ImagePath = imagePath
 
     def ToConfiguration(self) -> Configuracion:
         return Configuracion(probabilidadCrossover=float(self.ProbabilidadCrossover.get()),
@@ -41,4 +42,5 @@ class ConfigurationViewModel:
                              iteraciones=int(self.Iteraciones.get()),
                              elite=bool(self.Elite.get()),
                              color=bool(self.IsRGB.get()),
-                             step=int(self.Step.get()))
+                             step=int(self.Step.get()),
+                             imagePath=str(self.ImagePath))

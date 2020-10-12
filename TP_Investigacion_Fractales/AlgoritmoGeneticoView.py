@@ -4,16 +4,17 @@ from tkinter import ttk
 from TP_Investigacion_Fractales.CompresionAlgoritmoGenetico import test_ga
 from TP_Investigacion_Fractales.Configuracion import ConfigurationViewModel
 
+
 class AlgoritmoGeneticoView(Toplevel):
 
     # Se definen las características de la ventana principal.
-    def __init__(self, master=None):
+    def __init__(self, configurationViewModel: ConfigurationViewModel, master=None):
         super().__init__(master=master)
         self.title("Configuracion de Algoritmos Genéticos")
 
         self.geometry("370x250")
         self.resizable(False, False)
-        self.ConfigurationViewModel = ConfigurationViewModel()
+        self.ConfigurationViewModel = configurationViewModel
 
         lblProbabilidadCrossover = Label(self, text="Probabilidad de crossover (entre 0 y 1): ")
         txtProbabilidadCrossover = Spinbox(self,
@@ -32,10 +33,6 @@ class AlgoritmoGeneticoView(Toplevel):
 
         lblelitismo = Label(self, text="Elitismo")
         chkElitismo = Checkbutton(self, variable=self.ConfigurationViewModel.Elite, onvalue=True, offvalue=False)
-
-        lblIsRGB = Label(self, text="Is RGB")
-        chkIsRGB = Checkbutton(self, variable=self.ConfigurationViewModel.IsRGB,
-                               onvalue=True, offvalue=False)
 
         btnrun = Button(self, text="Ejecutar", command=lambda: self.Run())
 
@@ -70,10 +67,7 @@ class AlgoritmoGeneticoView(Toplevel):
         lblelitismo.place(x=10, y=160)
         chkElitismo.pack()
         chkElitismo.place(x=230, y=160)
-        lblIsRGB.pack()
-        lblIsRGB.place(x=10, y=190)
-        chkIsRGB.pack()
-        chkIsRGB.place(x=230, y=190)
+
         btnrun.pack()
         btnrun.place(x=240, y=220)
         self.progress.pack()
