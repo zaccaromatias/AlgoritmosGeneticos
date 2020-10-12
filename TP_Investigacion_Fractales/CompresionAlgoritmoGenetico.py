@@ -27,6 +27,8 @@ def test_ga(configuracion: Configuracion, ventana=None):
     lastseconds = time.time()
     print('Tardo:' + repr(lastseconds - seconds) + 'Segundos')
     plt.title('Ultima Iteracion - Tardo: ' + repr(lastseconds - seconds) + 'Segundos')
+    # mpimg.imsave('dolly_Zero_fractal_.jpg', iterations[0], cmap='gray', vmin=0, vmax=255, interpolation='none')
+    mpimg.imsave('dolly_Ultima_fractal_.jpg', iterations[len(iterations) - 1], cmap='gray', vmin=0, vmax=255)
     plt.show()
 
 

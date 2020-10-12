@@ -16,8 +16,8 @@ class Configuracion:
         self.Iteraciones = iteraciones
         self.Elite = elite
         self.IsRGB = color
-        self.Destination_Size = 4
-        self.ImagePath = 'monkey.gif'
+        self.Destination_Size = 2
+        self.ImagePath = 'doly_256.jpg'
 
 
 class ConfigurationViewModel:
@@ -28,9 +28,8 @@ class ConfigurationViewModel:
         self.Iteraciones = tk.StringVar(value=50)
         self.Elite = tk.BooleanVar(value=True)
         self.CantidadElites = tk.StringVar(value=4)
-        self.Bloques = tk.StringVar(value=8)
-        self.Source_Size = tk.StringVar(value=8)
-        self.Step = tk.StringVar(value=8)
+        self.Bloques = tk.StringVar(value=4)
+        self.Step = tk.StringVar(value=4)
         self.IsRGB = tk.BooleanVar(value=False)
 
     def ToConfiguration(self) -> Configuracion:

@@ -29,7 +29,7 @@ class Transformacion:
         elif numeroParametro == 3:
             self.Brightness = self.Brightness + random()
         elif numeroParametro == 4:
-            self.Contrast = self.Brightness + random()
+            self.Contrast = self.Contrast + random()
         tranformation = get_transformed(img, self.X, self.Y, self.IsometricFlip[0], self.IsometricFlip[1], step,
                                         source_size, factor)
         self.S = tranformation[4]
